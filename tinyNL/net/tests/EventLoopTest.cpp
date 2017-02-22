@@ -6,6 +6,7 @@
 #include <sys/timerfd.h>
 #include <tinyNL/net/Channel.h>
 #include <cstring>
+#include <tinyNL/base/TimeUtilies.h>
 
 using namespace tinyNL;
 using namespace tinyNL::net;
@@ -46,7 +47,7 @@ public:
 
 int main() {
 
-    timerfd = timerfd_create(CLOCK_MONOTONIC, TFD_CLOEXEC | TFD_NONBLOCK);
+    timerfd = timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC | TFD_NONBLOCK);
     Channel channel(timerfd, &loop);
     auto f = std::function<void()>(r);
     toy t;
@@ -55,10 +56,13 @@ int main() {
     channel.enableRead();
     struct itimerspec interval;
     ::memset(&interval, 0, sizeof(interval));
-
-    interval.it_value.tv_sec = 1;
+    long ms = base::TimeUtilies::millionSecondsSinceEposh();
+    std::cout << ms << std::endl;
+    interval.it_value.tv_sec = ms / 1000 + 2;
     interval.it_interval.tv_sec = 1;
-    timerfd_settime(timerfd, 0, &interval, nullptr);
+    timerfd_settime(timerfd, TFD_TIMER_ABSTIME, &interval, nullptr);
+    timerfd_gettime(timerfd, &interval);
+    std::cout << "sec" << interval.it_value.tv_sec << " nsec" << interval.it_value.tv_nsec <<std::endl;
     loop.loop();
 
     std::cout << "test done" << std::endl;

@@ -6,12 +6,13 @@
 #define TINYNL_CHANNEL_H
 
 #include <functional>
+#include <tinyNL/dir/Noncopyable.h>
 
 namespace tinyNL {
     namespace net {
         class EventLoop;
 
-        class Channel {
+        class Channel : Noncopyable {
         public:
             typedef std::function<void()> CallBack;
 
@@ -19,11 +20,11 @@ namespace tinyNL {
 
             void handleEvent();
 
-            void setReadCallBack(CallBack &cb);
+            void setReadCallBack(const CallBack &cb);
 
-            void setWriteCallBack(CallBack &cb);
+            void setWriteCallBack(const CallBack &cb);
 
-            void setErrorCallBack(CallBack &cb);
+            void setErrorCallBack(const CallBack &cb);
 
             void setRevent(uint32_t et);
 
@@ -53,7 +54,6 @@ namespace tinyNL {
             EventLoop *getEventLoop() const { return loop_; }
 
         private:
-
 
             int fd_;
             EventLoop *loop_;

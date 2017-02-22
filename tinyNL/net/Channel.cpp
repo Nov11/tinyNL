@@ -30,15 +30,15 @@ namespace tinyNL {
             }
         }
 
-        void Channel::setReadCallBack(Channel::CallBack &cb) {
+        void Channel::setReadCallBack(const Channel::CallBack &cb) {
             readCallBack = cb;
         }
 
-        void Channel::setWriteCallBack(Channel::CallBack &cb) {
+        void Channel::setWriteCallBack(const Channel::CallBack &cb) {
             writeCallBack = cb;
         }
 
-        void Channel::setErrorCallBack(Channel::CallBack &cb) {
+        void Channel::setErrorCallBack(const Channel::CallBack &cb) {
             errorCallBack = cb;
         }
 

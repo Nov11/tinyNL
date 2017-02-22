@@ -21,6 +21,7 @@ namespace tinyNL{
         class Channel;
         class Multiplexer;
         class TimerQueue;
+        class Timer;
         class EventLoop : Noncopyable{
         public:
             EventLoop();
@@ -37,7 +38,7 @@ namespace tinyNL{
                     logAndAbort();
                 }
             }
-            
+
             void logAndAbort(){
                 std::cerr << "running thread with id:" << tinyNL::net::CurrentThread::tid()
                                          << " is not the owner of event loop (ptr): "
@@ -50,17 +51,30 @@ namespace tinyNL{
 
             void updateMultiplexer(Channel* channel);
 
+            void runInLoopThread(const std::function<void()>& func);
+            void wakeUp();
+            std::shared_ptr<Timer> addTimerSinceNow(const std::function<void()>&task, long start, long interval, int repeat);
+            std::shared_ptr<Timer> addTimerAbsolute(const std::function<void()>&task, long start, long interval, int repeat);
+            void delTimer(const std::shared_ptr<Timer>& timer);
+            void addPendingTasks(const std::vector<std::function<void()>>&);
+            std::shared_ptr<TimerQueue> timerQueue() {return timerQueueOfEventLoop;}
         private:
             const pid_t threadId_;
             bool looping_;
             std::atomic_bool stop_;
             std::shared_ptr<tinyNL::net::Multiplexer> multiplexer;
-            typedef std::vector<std::function<void()>> PendingTaksList;
-            PendingTaksList pendingTasks;
+            typedef std::vector<std::function<void()>> PendingTaskList;
+            PendingTaskList pendingTasks;
             void doPendingTask();
             tinyNL::base::Mutex mutex_;
-            //every eventloop owns one timerqueue
-            std::shared_ptr<TimerQueue> timerQueue;
+
+            int eventfd_;
+            std::unique_ptr<Channel> channelUPtr;
+            //every eventloop owns one timerqueue.
+            std::shared_ptr<TimerQueue> timerQueueOfEventLoop;
+            void queueInLoop(const std::function<void()>& function);
+            int setUpEventFd();
+            static void eventReadCallBack(int fd);
         };
     }
 }

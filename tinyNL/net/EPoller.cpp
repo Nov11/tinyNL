@@ -47,7 +47,7 @@ namespace tinyNL {
                     _exit(1);
                 }
             } else if (ret == 0) {
-                tinyNL::base::LOG << "epoll wait time out. ";
+                tinyNL::base::LOG << "epoll wait time out. \n";
             } else {
                 fillActiveChannelList(ret, readyChannelList, evlist);
             }
