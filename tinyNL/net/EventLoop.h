@@ -78,13 +78,13 @@ namespace tinyNL {
             const pid_t threadId_;
             bool looping_;
             std::atomic_bool stop_;
-            std::shared_ptr<tinyNL::net::Multiplexer> multiplexer;
-            PendingTaskList pendingTasks;
+            std::shared_ptr<tinyNL::net::Multiplexer> multiplexer_;
+            PendingTaskList pendingTasks_;
             tinyNL::base::Mutex mutex_;
             int eventfd_;
             std::unique_ptr<Channel> channelUPtr;
             //every eventloop owns one timerqueue.
-            std::shared_ptr<TimerQueue> timerQueueOfEventLoop;
+            std::shared_ptr<TimerQueue> timerQueueOfEventLoop_;
 
             static void eventReadCallBack(int fd);
 
@@ -92,7 +92,7 @@ namespace tinyNL {
 
             int setUpEventFd();
 
-            void queueInLoop(const std::function<void()> &function);
+            void queueInLoopAndWakeLoopThread(const std::function<void()> &function);
         };
     }
 }

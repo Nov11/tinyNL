@@ -23,10 +23,10 @@ namespace tinyNL {
                 : threadId_(tinyNL::net::CurrentThread::tid()),
                   looping_(false),
                   stop_(false),
-                  multiplexer(new EPoller()),
+                  multiplexer_(new EPoller()),
                   eventfd_(setUpEventFd()),
                   channelUPtr(new Channel(eventfd_, this)),
-                  timerQueueOfEventLoop(new TimerQueue(this)) {
+                  timerQueueOfEventLoop_(new TimerQueue(this)) {
             if (threadEventLoopPtr == nullptr) {
                 threadEventLoopPtr = this;
             } else {
@@ -63,7 +63,7 @@ namespace tinyNL {
             while (!stop_) {
                 //1.wait on io multiplex
                 tinyNL::net::Multiplexer::ChannelList activeChannels;
-                multiplexer->multiplexerPolling(4000, activeChannels);
+                multiplexer_->multiplexerPolling(4000, activeChannels);
                 for (auto iter : activeChannels) {
                     iter->handleEvent();
                 }
@@ -84,7 +84,7 @@ namespace tinyNL {
         void EventLoop::updateMultiplexer(Channel *channel) {
             assert(channel->getEventLoop() == this);
             assertInLoopThread();
-            multiplexer->multiplexerUpdate(channel);
+            multiplexer_->multiplexerUpdate(channel);
         }
 
         void EventLoop::doPendingTask() {
@@ -92,7 +92,7 @@ namespace tinyNL {
             PendingTaskList local;
             {
                 base::MutexLockGuard m(mutex_);
-                std::swap(local, pendingTasks);
+                std::swap(local, pendingTasks_);
             }
             for (auto &iter : local) {
                 iter();
@@ -107,16 +107,16 @@ namespace tinyNL {
             } else {
 //                std::cout<<"\nrunInLoopThread queue up " <<std::endl;
 
-                queueInLoop(func);
-                wakeUp();
+                queueInLoopAndWakeLoopThread(func);
             }
         }
 
-        void EventLoop::queueInLoop(const std::function<void()> &function) {
+        void EventLoop::queueInLoopAndWakeLoopThread(const std::function<void()> &function) {
             {
                 base::MutexLockGuard m(mutex_);
-                pendingTasks.push_back(function);
+                pendingTasks_.push_back(function);
             }
+            wakeUp();
         }
 
         int EventLoop::setUpEventFd() {
@@ -147,25 +147,26 @@ namespace tinyNL {
         void EventLoop::addPendingTasks(const std::vector<std::function<void()>> &tasks) {
             {
                 base::MutexLockGuard m(mutex_);
-                std::copy(tasks.begin(), tasks.end(), std::back_inserter(pendingTasks));
+                std::copy(tasks.begin(), tasks.end(), std::back_inserter(pendingTasks_));
             }
+            wakeUp();
         }
 
         std::shared_ptr<Timer> EventLoop::addTimerSinceNow(const std::function<void()> &task, long start, long interval, int repeat) {
             std::shared_ptr<Timer> timer(
                     new Timer(task, tinyNL::base::TimeUtilies::millionSecondsSinceEposh() + start, interval, repeat));
-            timerQueueOfEventLoop->addTimer(timer);
+            timerQueueOfEventLoop_->addTimer(timer);
             return timer;
         }
 
         std::shared_ptr<Timer> EventLoop::addTimerAbsolute(const std::function<void()> &task, long start, long interval, int repeat) {
             std::shared_ptr<Timer> timer(new Timer(task, start, interval, repeat));
-            timerQueueOfEventLoop->addTimer(timer);
+            timerQueueOfEventLoop_->addTimer(timer);
             return timer;
         }
 
         void EventLoop::delTimer(const std::shared_ptr<Timer> &timer) {
-            timerQueueOfEventLoop->delTimer(timer);
+            timerQueueOfEventLoop_->delTimer(timer);
         }
     }
 }
