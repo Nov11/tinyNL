@@ -16,7 +16,7 @@ int timerfd;
 
 void r() {
     repeat--;
-    std::cout << "enter read handler" << std::endl;
+    std::cout << "enter readFromSocket handler" << std::endl;
     int array[10] = {};
     ssize_t ret = read(timerfd, array, sizeof(array));
     std::cout << "return val: " << ret << std::endl;
@@ -29,7 +29,7 @@ void r() {
         std::cout << "end event loop" << std::endl;
         loop.stop();
     }
-    std::cout << "read handler return" << std::endl;
+    std::cout << "readFromSocket handler return" << std::endl;
 }
 
 class toy{
@@ -39,7 +39,7 @@ public:
     }
 
     void read(){
-        std::cout<<"toy::read"<<std::endl;
+        std::cout<<"toy::readFromSocket"<<std::endl;
         loop.stop();
     }
 };

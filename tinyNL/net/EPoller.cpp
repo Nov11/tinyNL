@@ -14,7 +14,7 @@ namespace tinyNL {
         EPoller::EPoller() {
             epollfd_ = ::epoll_create1(EPOLL_CLOEXEC);
             if (epollfd_ == -1) {
-                //call this before log, cause log will call 'write' which  clears errno set by epollcreate
+                //call this before log, cause log will call 'writeToSocket' which  clears errno set by epollcreate
                 std::string errorMsg(strerror(errno));
                 tinyNL::base::LOG << "error creating epoll fd : " + errorMsg;
                 //there is nothing we can do
@@ -62,7 +62,7 @@ namespace tinyNL {
                 ch->setRevent(ee.events);
                 newChannelList.push_back(ch);
             }
-            std::swap(readyChannelList, newChannelList);
+            swap(readyChannelList, newChannelList);
         }
 
         void EPoller::multiplexerUpdate(Channel *channel) {

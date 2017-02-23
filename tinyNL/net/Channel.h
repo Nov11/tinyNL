@@ -32,6 +32,8 @@ namespace tinyNL {
 
             void enableWrite();
 
+            void enableReadAndWrite();
+
             void disableRead();
 
             void disableWrite();

@@ -92,7 +92,7 @@ namespace tinyNL {
             PendingTaskList local;
             {
                 base::MutexLockGuard m(mutex_);
-                std::swap(local, pendingTasks_);
+                swap(local, pendingTasks_);
             }
             for (auto &iter : local) {
                 iter();

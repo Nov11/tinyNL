@@ -16,10 +16,16 @@ namespace tinyNL{
     namespace net{
         class EventLoop;
         class Channel;
+
+        //1.build acceptor
+        //2.set uesr call back which deals with incomming fd fd
+        //3.start the acceptor which register itself to io multiplexer
         class Acceptor : Noncopyable{
         public:
-            typedef std::function<void(int, sockaddr_in)> AcceptorUserCallBack;
-            explicit Acceptor(EventLoop *loop, int port, const AcceptorUserCallBack & userCallBack);
+            typedef std::function<void(int, sockaddr_in&)> AcceptorUserCallBack;
+            explicit Acceptor(EventLoop *loop, int port);
+            void setUserCallBack(const AcceptorUserCallBack & userCallBack){userCallBack_=userCallBack;}
+            void start();
             ~Acceptor();
         private:
             EventLoop* loop_;

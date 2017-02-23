@@ -21,8 +21,10 @@ int main(){
     if(r == SIG_ERR){
         base::LOG.logErrorAndExit();
     }
-    Acceptor::AcceptorUserCallBack cb = [](int fd, sockaddr_in){std::cout<<"exec acceptor call back" <<std::endl;
+    Acceptor::AcceptorUserCallBack cb = [](int fd, sockaddr_in&){std::cout<<"exec acceptor call back" <<std::endl;
         close(fd);std::cout<<"closed incoming connection" <<std::endl;};
-    Acceptor acceptor(&eventLoop, 60000, cb);
+    Acceptor acceptor(&eventLoop, 60000);
+    acceptor.setUserCallBack(cb);
+    acceptor.start();
     eventLoop.loop();
 }

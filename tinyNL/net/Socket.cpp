@@ -9,6 +9,7 @@
 #include <fcntl.h>
 #include <tinyNL/base/Log.h>
 #include <cstring>
+#include <assert.h>
 
 using namespace tinyNL::net;
 
@@ -66,6 +67,7 @@ int Socket::accept4(struct sockaddr_in *peer) {
             //it's ok
         } else {
             //not likely to see econnaborted
+            //ignore them if error occured
             base::LOG.logError();
         }
     }
@@ -101,5 +103,56 @@ void Socket::setReuseAddr(bool on) {
         base::LOG.logErrorAndExit();
     }
 }
+
+
+//got to pass up messages about peer close and occured errors to connection layer,
+//or tcpconnection will never know when to close the sock
+
+//ssize_t Socket::read(void * dest, size_t len) {
+//    ssize_t input = 0;
+//    char* ptr = reinterpret_cast<char*>(dest);
+//    while(input <len){
+//        ssize_t ret = ::read(socket_, ptr, len - input);
+//        if(ret == -1){
+//            if(errno == EINTR){
+//                continue;
+//            }else{
+//                base::LOG.logError();
+//                break;
+//            }
+//        }else{
+//            std::advance(ptr, ret);
+//            input += ret;
+//        }
+//    }
+//
+//    return input;
+//}
+//
+//ssize_t Socket::write(void *src, size_t len) {
+//    ssize_t output = 0;
+//    char* ptr = reinterpret_cast<char*>(src);
+//    while(output < len){
+//        ssize_t ret = ::write(socket_, ptr, len - output);
+//        if(ret == -1){
+//            if(errno == EINTR){
+//                //will this happen?
+//                continue;
+//            }else if(errno == EWOULDBLOCK || errno == EAGAIN){
+//                //can't write any more
+//                break;
+//            }else if(errno == EPIPE){
+//                //peer close
+//
+//                base::LOG.logError();
+//                break;
+//            }
+//        }else{
+//            std::advance(ptr, ret);
+//            output += ret;
+//        }
+//    }
+//    return output;
+//}
 
 
