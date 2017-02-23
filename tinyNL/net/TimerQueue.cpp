@@ -26,7 +26,7 @@ namespace tinyNL {
             //timerqueue lives as long as its owner eventloop , which owns multiplexer,
             //so I think it is ok to publish 'this' pointer here
             rcb = [this]() { readCallBack(); };
-            //std::bind(TimerQueue::readCallBack, this, std::placeholders::_1);
+            //std::bind(TimerQueue::channelReadCallBack, this, std::placeholders::_1);
             channelPtr_->setReadCallBack(rcb);
             channelPtr_->enableRead();
         }
