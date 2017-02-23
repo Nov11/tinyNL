@@ -10,15 +10,11 @@ namespace tinyNL {
     namespace base {
         MutexLockGuard::MutexLockGuard(Mutex &mutex)
                 : mutex_(mutex) {
-            if(pthread_mutex_lock(mutex_.getMutexPtr())){
-                LOG.logError();
-            }
+            mutex_.lock();
         }
 
         MutexLockGuard::~MutexLockGuard() {
-            if(pthread_mutex_unlock(mutex_.getMutexPtr())){
-                LOG.logError();
-            }
+            mutex_.unlock();
         }
     }
 }

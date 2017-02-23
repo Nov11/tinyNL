@@ -9,9 +9,10 @@
 
 namespace tinyNL {
     namespace base {
+
         class MutexLockGuard : Noncopyable{
         public:
-            MutexLockGuard(Mutex& mutex);
+            explicit MutexLockGuard(Mutex& mutex);
             ~MutexLockGuard();
         private:
             Mutex& mutex_;

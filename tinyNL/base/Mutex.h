@@ -14,9 +14,9 @@ namespace tinyNL{
         public:
             Mutex();
             ~Mutex();
-            pthread_mutex_t* getMutexPtr(){
-                return &mutex_;
-            }
+            void lock();
+            void unlock();
+            pthread_mutex_t* getMutexPtr(){return &mutex_;}
         private:
             pthread_mutex_t mutex_;
         };

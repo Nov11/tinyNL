@@ -12,7 +12,7 @@ namespace tinyNL{
     namespace base{
         class Cond :Noncopyable{
         public:
-            Cond(Mutex& mutex);
+            explicit Cond(Mutex& mutex);
             ~Cond();
             void wait();
             void notify();

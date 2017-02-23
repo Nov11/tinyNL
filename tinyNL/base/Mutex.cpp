@@ -22,6 +22,18 @@ namespace tinyNL{
                 tinyNL::base::LOG << strerror(errno);
             }
         }
+
+        void Mutex::lock() {
+            if(pthread_mutex_lock(&mutex_)){
+                LOG.logError();
+            }
+        }
+
+        void Mutex::unlock() {
+            if(pthread_mutex_unlock(&mutex_)){
+                LOG.logError();
+            }
+        }
     }
 }
 
