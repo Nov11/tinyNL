@@ -15,6 +15,8 @@
 
 #include <utmpx.h>
 #include <atomic>
+#include <tinyNL/base/Log.h>
+#include <sstream>
 #include "Channel.h"
 #include "TimerQueue.h"
 
@@ -49,12 +51,14 @@ namespace tinyNL {
             }
 
             void logAndAbort() {
-                std::cerr << "running thread with id:" << tinyNL::net::CurrentThread::tid()
+                std::stringstream ss;
+                ss << "running thread with id:" << tinyNL::net::CurrentThread::tid()
                           << " is not the owner of event loop (ptr): "
                           << this
                           << " which should be "
                           << threadId_
                           << std::endl;
+                base::LOG<<ss.str();
                 _exit(1);
             }
 

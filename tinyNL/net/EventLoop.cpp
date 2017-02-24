@@ -30,9 +30,11 @@ namespace tinyNL {
             if (threadEventLoopPtr == nullptr) {
                 threadEventLoopPtr = this;
             } else {
-                std::cerr << "current running thread id :" << tinyNL::net::CurrentThread::tid()
+                std::stringstream ss;
+                ss << "current running thread id :" << tinyNL::net::CurrentThread::tid()
                           << " already owns one eventloop :"
                           << threadEventLoopPtr << std::endl;
+                base::LOG<<ss.str();
             }
             //eventchannel is needed to be wake up from blocking on multiplexer
             //set it up here

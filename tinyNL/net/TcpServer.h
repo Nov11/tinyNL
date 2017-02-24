@@ -31,21 +31,26 @@ namespace tinyNL{
             void setOnConnectionCallBack(const CallBack& cb){onConnection_ = cb;}
             void setOnMessageCallBack(const CallBack& cb){onMessage_ = cb;}
             void setOnPeerCloseCallBack(const CallBack& cb){onPeerClose_ = cb;}
-            void removeConnectionFromOwner(const std::shared_ptr<TcpConnection>&);
             ~TcpServer()= default;
             void start();
             void demolish();//do not expect to restart server after calling this
+            void addWorkEventLoop(EventLoop* loop){workerLoop_.push_back(loop);}
         private:
             EventLoop* loop_;
+            std::vector<EventLoop*> workerLoop_;
             //release resource using destor
             std::unique_ptr<Acceptor> accptr;
             std::set<std::shared_ptr<TcpConnection>> connectionList;
             void newConnection(int fd, sockaddr_in&);
+            void removeConnectionFromOwner(const std::shared_ptr<TcpConnection>&);
+            void removeConnectionFromOwnerInLoopThread(const std::shared_ptr<TcpConnection>&);
             CallBack onPeerClose_;
             CallBack onConnection_;
             CallBack onMessage_;
             void stopInLoopThread();
             //should set a limit to number of active connections
+            int cnt = 0;
+            EventLoop* pickWorkLoop();
         };
     }
 }

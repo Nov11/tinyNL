@@ -3,11 +3,14 @@
 //
 
 #include "Acceptor.h"
+#include "AddressUtility.h"
 #include <tinyNL/net/Channel.h>
 #include <tinyNL/net/EventLoop.h>
 #include <netinet/in.h>
 #include <iostream>
 #include <unistd.h>
+#include <tinyNL/base/Log.h>
+#include <sstream>
 
 namespace tinyNL {
     namespace net {
@@ -45,11 +48,13 @@ namespace tinyNL {
                 return;
             }
             //new connection and set it up with eventloop
-            std::cout << "get new connection fd:" << std::endl;
+            std::stringstream tmp;
+            tmp<< "get new connection :";
+            tmp<<AddressUtility::toString(addr)<<" port: "<<ntohs(addr.sin_port)<<std::endl;
+            base::LOG<<tmp.str();
             //for test
             //close(incommingSocketFd);
             if (userCallBack_) {
-                std::cout<< "acceptor run user Call Back" <<std::endl;
                 userCallBack_(incommingSocketFd, addr);
             }
         }

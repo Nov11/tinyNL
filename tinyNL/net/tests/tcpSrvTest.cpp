@@ -13,11 +13,14 @@
 #include <tinyNL/net/TcpConnection.h>
 #include <tinyNL/net/AddressUtility.h>
 #include <thread>
+#include <sstream>
+#include <tinyNL/net/EventLoopThread.h>
 
 using namespace tinyNL;
 using namespace tinyNL::net;
 
 EventLoop loop;
+
 TcpServer tcpServer(&loop, 60000);
 std::shared_ptr<TcpConnection> chkptr;
 
@@ -28,58 +31,75 @@ void fff(std::shared_ptr<TcpConnection> con) {
     std::string s(ptr, len);
     buffer.erase(len);
 //    chkptr = con;
-    std::cout << "usercode onMsg: " << s << std::endl;
+//    std::cout << "usercode onMsg: " << s << std::endl;
+    std::string tmp;
+    tmp.append("usercode onMsg: ").append(s);
+    base::LOG<<tmp;
     std::string str("hello from srv");
     con->send(str);
-    con->closeConnection();
+//    con->closeConnection();
 }
 
 void onConnection(std::shared_ptr<TcpConnection> con) {
-    std::cout << "usercode onCon new connection from host: " << AddressUtility::toString(con->peerAddr())
+    std::stringstream ss;
+    ss << "usercode onCon new connection from host: " << AddressUtility::toString(con->peerAddr())
               << " port: "
               << ntohs(con->peerAddr().sin_port)
-              << std::endl;
+            <<std::endl;
+//    base::LOG<<ss.str();
 }
 
 void onPeerClose(std::shared_ptr<TcpConnection> con) {
-    std::cout << "usercode onClose peer close :" << AddressUtility::toString(con->peerAddr())
+    std::stringstream ss;
+    ss<< "usercode onClose peer close :" << AddressUtility::toString(con->peerAddr())
                                                  << " port: "
                                                  << ntohs(con->peerAddr().sin_port)
                                                  << std::endl;
-    std::cout<<"usercode onClose peer close chkptr use_count: "<<chkptr.use_count()<<std::endl;
+    ss<<"usercode onClose peer close chkptr use_count: "<<chkptr.use_count()<<std::endl;
+//    base::LOG<<ss.str();
 }
 
 void stopEventLoop(uint32_t sec) {
     sleep(sec);
-    std::cout << "stopEventLoop" << std::endl;
+    std::stringstream ss;
+    ss<< "stopEventLoop" << std::endl;
+    base::LOG<<ss.str();
     loop.stop();
 }
 
-void stopTcpServer(TcpServer* tcp){
-    tcp->demolish();
-    std::cout<<chkptr.use_count()<<std::endl;
-}
+//void stopTcpServer(TcpServer* tcp){
+//    tcp->demolish();
+//    std::cout<<chkptr.use_count()<<std::endl;
+//}
 
 void stopTcpSrvInanoterThread(){
-    sleep(10);
+    sleep(20);
     tcpServer.demolish();
 }
+void infi(EventLoop* loop_){
+    loop_->loop();
+}
 
+EventLoopThread eventLoopThread(infi);
 int main() {
-    std::cout<<"enter main" <<std::endl;
+    base::LOG<<"enter main\n";
     std::function<void(std::shared_ptr<TcpConnection>)> cb(fff);
     std::function<void(std::shared_ptr<TcpConnection>)> cb2(::onConnection);
     std::function<void(std::shared_ptr<TcpConnection>)> cb3(::onPeerClose);
     tcpServer.setOnMessageCallBack(cb);
     tcpServer.setOnConnectionCallBack(cb2);
     tcpServer.setOnPeerCloseCallBack(cb3);
+
+    EventLoop* loop1 = eventLoopThread.start();
+    tcpServer.addWorkEventLoop(loop1);
     tcpServer.start();
 //    loop.addTimerSinceNow([&](){stopTcpServer(&tcpServer);}, 6* 1000, 0, 0);
 
     std::thread th(::stopTcpSrvInanoterThread);
-    std::thread th1(::stopEventLoop, 20);
+    std::thread th1(::stopEventLoop, 30);
 
     loop.loop();
+    loop1->stop();
     th.join();
     th1.join();
     std::cout<<"chkptr use_count: "<<chkptr.use_count()<<std::endl;

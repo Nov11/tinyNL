@@ -27,13 +27,15 @@ namespace tinyNL{
         void TcpServer::newConnection(int fd, sockaddr_in& peer) {
             loop_->assertInLoopThread();
             //1.new tcpconnection
-            std::shared_ptr<TcpConnection> ptr(new TcpConnection(loop_, fd, peer));
+            EventLoop* worker = pickWorkLoop();
+            std::shared_ptr<TcpConnection> ptr(new TcpConnection(worker, fd, peer));
             //2.save it up
             connectionList.insert(ptr);
             //3.set call back
             ptr->setOnMsgCallBack(onMessage_);
             ptr->setOnConnectionCallBack(onConnection_);
             ptr->setOnPeerCloseCallBack(onPeerClose_);
+
 
             ptr->setSelfRemoveCallBack([this](const std::shared_ptr<TcpConnection>& param){ removeConnectionFromOwner(param); });
             //this is called when acceptor received a new connection
@@ -44,9 +46,15 @@ namespace tinyNL{
             ptr->start();
         }
 
-        void TcpServer::removeConnectionFromOwner(const std::shared_ptr<TcpConnection>& ptr) {
+
+        void TcpServer::removeConnectionFromOwnerInLoopThread(const std::shared_ptr<TcpConnection> &ptr) {
             loop_->assertInLoopThread();
             connectionList.erase(ptr);
+        }
+
+        void TcpServer::removeConnectionFromOwner(const std::shared_ptr<TcpConnection>& ptr) {
+            auto tmp = std::bind(&TcpServer::removeConnectionFromOwnerInLoopThread, this, ptr);
+            loop_->runInLoopThread(tmp);
         }
 
         void TcpServer::demolish() {
@@ -63,9 +71,15 @@ namespace tinyNL{
             //tcpconection will invalid iterator of connectionList,
             //so here uses a local one, whose tcp connection will run destor after this function returns.
             for (auto &iter :localList) {
-                iter->closeConnectionInLoopThread();
+                iter->closeConnection();
             }
-            std::cout<<"destor"<<std::endl;
+        }
+
+        EventLoop *TcpServer::pickWorkLoop() {
+            if(workerLoop_.empty()){return loop_;}
+            cnt ++;
+            auto idx = cnt % workerLoop_.size();
+            return workerLoop_[idx];
         }
     }
 }

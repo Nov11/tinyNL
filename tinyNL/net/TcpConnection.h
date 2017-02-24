@@ -49,6 +49,7 @@ namespace tinyNL{
             SelfRemoveFromSrv removeFromSrv_;
             bool closing_ = false;
             void sendInLoop(const std::string& str);
+            void startInLoop();
         };
     }
 }

@@ -19,7 +19,7 @@ namespace tinyNL {
                 if (ret == nullptr) {
                     base::LOG.logErrorAndExit();
                 }
-                return std::string(tmp, tmp + 16);
+                return std::string(tmp);
             }
         };
     }

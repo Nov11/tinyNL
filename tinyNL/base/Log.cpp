@@ -10,7 +10,7 @@ namespace tinyNL{
     namespace base{
         Log LOG;
         Log& Log::operator<<(const std::string& str) {
-            std::string inner = "thread no: ";
+            std::string inner = "[#thread no: ";
             inner.append(std::to_string(net::CurrentThread::tid()));
             inner.append(" ");
             inner.append(str);

@@ -23,10 +23,15 @@ namespace tinyNL {
 
         TcpConnection::~TcpConnection() {
             channel_.disableChannel();
-            std::cout<<"tcp connection destor"<<std::endl;
+            base::LOG<<"tcp connection destor\n";
         }
 
         void TcpConnection::start() {
+            auto tmp = std::bind(&TcpConnection::startInLoop, this);
+            loop_->runInLoopThread(tmp);
+        }
+
+        void TcpConnection::startInLoop() {
             channel_.enableReadAndWrite();
         }
 
@@ -55,7 +60,7 @@ namespace tinyNL {
                     //so why bother drain writebuf. just go on to connection shutdown.
                     //but can't do it here.
                     //shutdown connection after read buffer is processed by app level user code.
-                    std::cout<<"read 0 peer close"<<std::endl;
+                    base::LOG<<"read 0 peer close\n";
                     channel_.disableChannel();
                     closing_ = true;
                     auto tmp = std::bind(&TcpConnection::closeConnectionInLoopThread, shared_from_this());
@@ -142,7 +147,7 @@ namespace tinyNL {
         }
 
         void TcpConnection::closeConnectionInLoopThread() {
-            std::cout<<"tcp connection closeConnectionInLoopThread" <<std::endl;
+            base::LOG<<"tcp connection closeConnectionInLoopThread\n";
             //1.call user level close call back
             //2.remove itself from tcpserver
             loop_->assertInLoopThread();
