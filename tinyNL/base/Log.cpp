@@ -4,12 +4,17 @@
 
 #include <tinyNL/base/Log.h>
 #include <cstring>
+#include <tinyNL/net/CurrentThread.h>
 
 namespace tinyNL{
     namespace base{
         Log LOG;
         Log& Log::operator<<(const std::string& str) {
-            write(outputfd_, str.c_str(), strlen(str.c_str()));
+            std::string inner = "thread no: ";
+            inner.append(std::to_string(net::CurrentThread::tid()));
+            inner.append(" ");
+            inner.append(str);
+            write(outputfd_, inner.c_str(), strlen(inner.c_str()));
             return *this;
         }
 

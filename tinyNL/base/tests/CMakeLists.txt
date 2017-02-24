@@ -1,4 +1,4 @@
 add_executable(logtest logtest.cpp)
-target_link_libraries(logtest net base)
+target_link_libraries(logtest base net)
 add_executable(threadTest threadTest.cpp)
-target_link_libraries(threadTest net base)
+target_link_libraries(threadTest base net)

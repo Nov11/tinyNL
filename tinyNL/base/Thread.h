@@ -37,12 +37,14 @@ namespace tinyNL {
             }
 
             void join() {
-                if (pthread_join(threadId_, nullptr) != 0) {
-                    LOG.logErrorAndExit();
+                int ret = pthread_join(threadId_, nullptr);
+                if (ret != 0) {
+                    LOG.logErrorAndExitPthread(ret);
                 }
                 threadId_ = 0;
             }
 
+            bool isRunning(){return running_;}
         private:
             pthread_t threadId_;
             const std::function<void()> cb_;

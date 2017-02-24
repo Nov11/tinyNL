@@ -28,9 +28,9 @@ namespace tinyNL{
             explicit TcpServer(EventLoop* loop, int port);
 
             //for client use
-            void setOnConnectionCallBack(CallBack& cb){onConnection_ = cb;}
-            void setOnMessageCallBack(CallBack& cb){onMessage_ = cb;}
-            void setOnPeerCloseCallBack(CallBack& cb){onPeerClose_ = cb;}
+            void setOnConnectionCallBack(const CallBack& cb){onConnection_ = cb;}
+            void setOnMessageCallBack(const CallBack& cb){onMessage_ = cb;}
+            void setOnPeerCloseCallBack(const CallBack& cb){onPeerClose_ = cb;}
             void removeConnectionFromOwner(const std::shared_ptr<TcpConnection>&);
             ~TcpServer()= default;
             void start();

@@ -6,10 +6,15 @@ target_link_libraries(timertest net base pthread)
 add_executable(asrv acceptorTestSrv.cpp)
 target_link_libraries(asrv net base pthread)
 add_executable(aclnt acceptorTestClnt.cpp)
-target_link_libraries(aclnt net base pthread)
+target_link_libraries(aclnt  base net  pthread)
 
 add_executable(tcpsrv tcpSrvTest.cpp)
 target_link_libraries(tcpsrv net base pthread)
 
 add_executable(buffertest buffertest.cpp)
 target_link_libraries(buffertest net base)
+add_executable(elt EventLoopThreadTest.cpp)
+target_link_libraries(elt net base)
+
+add_executable(elstop eventloopstop.cpp)
+target_link_libraries(elstop net base)
