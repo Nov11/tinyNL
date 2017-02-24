@@ -15,6 +15,8 @@
 
 #include <utmpx.h>
 #include <atomic>
+#include "Channel.h"
+#include "TimerQueue.h"
 
 namespace tinyNL {
     namespace net {
@@ -72,19 +74,20 @@ namespace tinyNL {
 
             void addPendingTasks(const std::vector<std::function<void()>> &);
 
+            void addPendingTask(const std::function<void()> &);
         private:
             typedef std::vector<std::function<void()>> PendingTaskList;
 
             const pid_t threadId_;
             bool looping_;
             std::atomic_bool stop_;
-            std::shared_ptr<tinyNL::net::Multiplexer> multiplexer_;
+            std::unique_ptr<tinyNL::net::Multiplexer> multiplexer_;
             PendingTaskList pendingTasks_;
             tinyNL::base::Mutex mutex_;
             int eventfd_;
-            std::unique_ptr<Channel> channelUPtr;
+            Channel channel_;
             //every eventloop owns one timerqueue.
-            std::shared_ptr<TimerQueue> timerQueueOfEventLoop_;
+            TimerQueue timerQueueOfEventLoop_;
 
             static void eventReadCallBack(int fd);
 

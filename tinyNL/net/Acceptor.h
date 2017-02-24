@@ -10,6 +10,7 @@
 #include <memory>
 #include <netinet/in.h>
 #include "Socket.h"
+#include "Channel.h"
 
 
 namespace tinyNL{
@@ -30,7 +31,7 @@ namespace tinyNL{
         private:
             EventLoop* loop_;
             Socket socket_;
-            std::shared_ptr<Channel> cptr;
+            Channel channel_;
             void channelReadCallBack();
             AcceptorUserCallBack userCallBack_;
         };

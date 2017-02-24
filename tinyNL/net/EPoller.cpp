@@ -7,6 +7,7 @@
 #include <tinyNL/net/Channel.h>
 #include <cstring>
 #include <iostream>
+#include <assert.h>
 
 namespace tinyNL {
     namespace net {
@@ -66,33 +67,40 @@ namespace tinyNL {
         }
 
         void EPoller::multiplexerUpdate(Channel *channel) {
+            struct epoll_event ee;
+            ee.events = channel->events();
+            ee.data.ptr = channel;
             //del
             if (channel->isDisabled()) {
+                assert(channel->isAdded());
                 int ret = epoll_ctl(epollfd_, EPOLL_CTL_DEL, channel->fd(), nullptr);
                 if (ret == -1) {
                     tinyNL::base::LOG << strerror(errno) << " action : epoll ctrl del";
                 }
+                channel->setAddedIntoMultiplexer(false);
+                assert(channel->isDisabled() && !channel->isAdded());
                 return;
-            }
-
-            struct epoll_event ee;
-            ee.events = channel->events();
-            ee.data.ptr = channel;
-            //mod
-            if (channel->isAdded()) {
+            }else if (channel->isAdded()) {
+                //mod
+                assert(channel->isDisabled()==false);
                 int ret = epoll_ctl(epollfd_, EPOLL_CTL_MOD, channel->fd(), &ee);
                 if (ret == -1) {
                     tinyNL::base::LOG << strerror(errno) << " action : epoll ctrl mod";
                 }
+                assert(channel->isAdded() && !channel->isDisabled());
                 return;
-            }
-            //add
-            int ret = epoll_ctl(epollfd_, EPOLL_CTL_ADD, channel->fd(), &ee);
-            if (ret == -1) {
-                tinyNL::base::LOG << strerror(errno) << " action : epoll ctrl add";
             }else{
-                channel->setAddedIntoMultiplexer(true);
+                //add
+                assert(channel->isAdded()==false && channel->isDisabled() == false);
+                int ret = epoll_ctl(epollfd_, EPOLL_CTL_ADD, channel->fd(), &ee);
+                if (ret == -1) {
+                    tinyNL::base::LOG << strerror(errno) << " action : epoll ctrl add";
+                }else{
+                    channel->setAddedIntoMultiplexer(true);
+                }
+                assert(channel->isAdded() && !channel->isDisabled());
             }
+
         }
     }
 }

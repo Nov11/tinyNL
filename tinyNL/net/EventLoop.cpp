@@ -25,8 +25,8 @@ namespace tinyNL {
                   stop_(false),
                   multiplexer_(new EPoller()),
                   eventfd_(setUpEventFd()),
-                  channelUPtr(new Channel(eventfd_, this)),
-                  timerQueueOfEventLoop_(new TimerQueue(this)) {
+                  channel_(eventfd_, this),
+                  timerQueueOfEventLoop_(this) {
             if (threadEventLoopPtr == nullptr) {
                 threadEventLoopPtr = this;
             } else {
@@ -39,8 +39,8 @@ namespace tinyNL {
 
             //avoid clion editor "red underline" complain
             auto f = std::bind(EventLoop::eventReadCallBack, eventfd_);
-            channelUPtr->setReadCallBack(f);
-            channelUPtr->enableRead();
+            channel_.setReadCallBack(f);
+            channel_.enableRead();
         }
 
 //1.not working
@@ -50,7 +50,7 @@ namespace tinyNL {
             threadEventLoopPtr = nullptr;
 
             //deal with event channel
-            channelUPtr->disableChannel();
+            channel_.disableChannel();
 
             //deal with eventfd_
             close(eventfd_);
@@ -155,18 +155,25 @@ namespace tinyNL {
         std::shared_ptr<Timer> EventLoop::addTimerSinceNow(const std::function<void()> &task, long start, long interval, int repeat) {
             std::shared_ptr<Timer> timer(
                     new Timer(task, tinyNL::base::TimeUtilies::millionSecondsSinceEposh() + start, interval, repeat));
-            timerQueueOfEventLoop_->addTimer(timer);
+            timerQueueOfEventLoop_.addTimer(timer);
             return timer;
         }
 
         std::shared_ptr<Timer> EventLoop::addTimerAbsolute(const std::function<void()> &task, long start, long interval, int repeat) {
             std::shared_ptr<Timer> timer(new Timer(task, start, interval, repeat));
-            timerQueueOfEventLoop_->addTimer(timer);
+            timerQueueOfEventLoop_.addTimer(timer);
             return timer;
         }
 
         void EventLoop::delTimer(const std::shared_ptr<Timer> &timer) {
-            timerQueueOfEventLoop_->delTimer(timer);
+            timerQueueOfEventLoop_.delTimer(timer);
+        }
+
+        void EventLoop::addPendingTask(const std::function<void()> &task) {
+            {
+                base::MutexLockGuard guard(mutex_);
+                pendingTasks_.push_back(task);
+            }
         }
     }
 }

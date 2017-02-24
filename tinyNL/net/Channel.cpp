@@ -47,21 +47,25 @@ namespace tinyNL {
         }
 
         void Channel::enableRead() {
+            disabled = false;
             events_ |= EPOLLIN;
             updateChannel();
         }
 
         void Channel::enableWrite() {
+            disabled = false;
             events_ |= EPOLLOUT;
             updateChannel();
         }
 
         void Channel::disableRead() {
+            if(disabled){return;}
             events_ &= ~EPOLLIN;
             updateChannel();
         }
 
         void Channel::disableWrite() {
+            if(disabled){return;}
             events_ &= ~EPOLLOUT;
             updateChannel();
         }
@@ -71,12 +75,14 @@ namespace tinyNL {
         }
 
         void Channel::disableChannel() {
+            if(disabled){return;}
             disabled = true;
             updateChannel();
         }
 
         void Channel::enableReadAndWrite() {
             events_ |= (EPOLLOUT | EPOLLIN);
+            disabled = false;
             updateChannel();
         }
     }

@@ -82,7 +82,7 @@ int main() {
     eventLoop.load()->runInLoopThread(pendingTask);
 
     sleep(8);
-    std::cout << "Main before calling stop" << std::endl;
+    std::cout << "Main before calling demolish" << std::endl;
     eventLoop.load()->stop();
     std::cout << "Main before calling join" << std::endl;
     th.join();

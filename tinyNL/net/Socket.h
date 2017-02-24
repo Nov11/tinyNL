@@ -26,6 +26,7 @@ namespace tinyNL{
             int connect(const sockaddr_in&);
             static int getNonBlockingTcpSocket();
             int fd()const {return socket_;}
+            void shutdownWR();
             ssize_t read(void* dest, size_t len);
             ssize_t write(void* src, size_t len);
         private:

@@ -14,7 +14,7 @@ namespace tinyNL {
         Acceptor::Acceptor(EventLoop *loop, int port)
                 : loop_(loop),
                   socket_(Socket::getNonBlockingTcpSocket()),
-                  cptr(new Channel(socket_.fd(), loop_)) {
+                  channel_(socket_.fd(), loop_) {
             //1.bind
             socket_.setReuseAddr(true);
             socket_.bind(port);
@@ -24,7 +24,7 @@ namespace tinyNL {
         }
 
         Acceptor::~Acceptor() {
-            cptr->disableChannel();
+            channel_.disableChannel();
         }
 
         void Acceptor::start() {
@@ -33,8 +33,8 @@ namespace tinyNL {
             //2.listen
             socket_.listen();
             //3.setup channel callback
-            cptr->setReadCallBack([this]() { this->channelReadCallBack(); });
-            cptr->enableRead();
+            channel_.setReadCallBack([this]() { this->channelReadCallBack(); });
+            channel_.enableRead();
         }
 
         void Acceptor::channelReadCallBack() {

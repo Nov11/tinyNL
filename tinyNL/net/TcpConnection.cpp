@@ -6,6 +6,7 @@
 #include <tinyNL/net/Channel.h>
 #include <unistd.h>
 #include <tinyNL/base/Log.h>
+#include <tinyNL/net/EventLoop.h>
 
 namespace tinyNL {
     namespace net {
@@ -13,22 +14,26 @@ namespace tinyNL {
         TcpConnection::TcpConnection(EventLoop *loop, int fd, sockaddr_in &addr)
                 : loop_(loop),
                   socket_(fd),
-                  cptr(new Channel(fd, loop_)),
+                  channel_(fd, loop_),
                   peer_(addr) {
-            cptr->setReadCallBack([this]() { channelRead(); });
-            cptr->setWriteCallBack([this]() { channelWrite(); });
+            channel_.setReadCallBack([this]() { channelRead(); });
+            channel_.setWriteCallBack([this]() { channelWrite(); });
 
         }
 
         TcpConnection::~TcpConnection() {
-            cptr->disableChannel();
+            channel_.disableChannel();
+            std::cout<<"tcp connection destor"<<std::endl;
         }
 
         void TcpConnection::start() {
-            cptr->enableReadAndWrite();
+            channel_.enableReadAndWrite();
         }
 
         void TcpConnection::channelRead() {
+            loop_->assertInLoopThread();
+            //force closing or received EPIPE
+            if(closing_){return;}
             //1.read from fd
 //            readBuf.readFromSocket(socket_);
             //epoll uses level trigger, so here it's ok to not drain sock buffer
@@ -43,7 +48,18 @@ namespace tinyNL {
                     ptr += ret;
                 } else if (ret == 0) {
                     //peer close
-                    cptr->disableRead();
+                    //first I think I should drain writebuff and then close this connection.
+                    //but if peer closes socket write channel, it will never send back app level ack.
+                    //even if writebuf is drained,
+                    //host app level user code can't tell if the message from writebuff is received by peer.
+                    //so why bother drain writebuf. just go on to connection shutdown.
+                    //but can't do it here.
+                    //shutdown connection after read buffer is processed by app level user code.
+                    std::cout<<"read 0 peer close"<<std::endl;
+                    channel_.disableChannel();
+                    closing_ = true;
+                    auto tmp = std::bind(&TcpConnection::closeConnectionInLoopThread, shared_from_this());
+                    loop_->addPendingTask(tmp);
                     break;
                 } else {
                     //ret == -1
@@ -58,8 +74,10 @@ namespace tinyNL {
                 }
             }
             readBuf.append(buf, input);
-            //2.pass this buf to user callback
-            onMsgcb_(readBuf, *this);
+//            //2.pass this buf to user callback,run in pending queue;
+//            auto tmp = std::bind(onMsgcb_, shared_from_this());
+//            loop_->runInLoopThread(tmp);
+            onMsgcb_(shared_from_this());
         }
 
         void TcpConnection::channelWrite() {
@@ -70,7 +88,20 @@ namespace tinyNL {
 //            if (writeBuf.empty()) {
 //                cptr->disableWrite();
 //            }
-
+            loop_->assertInLoopThread();
+            //in channel dispatching, read first and then write.
+            //if read process detects that peer closed, the connection should shutdown.
+            //read process already set one closing funtor to pending functor queue
+            //there is no point to write remaining data in write buff as explained in channelread.
+            //even if program insists on writing remaining data in writebuf,
+            //peer socket close can only be detected no earlier than second write.
+            //and it possible that this process set up second closeconnection functor to pending queue.
+            //this will lead to second invocation of user's on peer close callback.
+            //it's ok to call tcpserver's remove callback, since it removes this connection only,
+            // no matter this connection has already been removed or not, no disaster will be caused.
+            //so here is a closing_ check, that if connection is closing, no matter set by
+            // closeconnection or read or write, just ignore remaining data and no writing will be done any more.
+            if(closing_){return;}
             size_t output = 0;
             char* ptr = writeBuf.readPtr();
             size_t len = writeBuf.readableSize();
@@ -88,7 +119,13 @@ namespace tinyNL {
                     }else if(errno == EAGAIN || errno == EWOULDBLOCK){
                         break;
                     }else if(errno == EPIPE){
-                        //peer closed;
+                        base::LOG.logError();
+                        //peer closed socket; stop writing; demolish reading; do user callback; close connection;
+                        channel_.disableChannel();
+                        closing_ = true;
+                        auto tmp = std::bind(&TcpConnection::closeConnectionInLoopThread, shared_from_this());
+                        loop_->addPendingTask(tmp);
+                        break;
                     }else{
                         base::LOG.logErrorAndExit();
                     }
@@ -96,18 +133,50 @@ namespace tinyNL {
             }
             writeBuf.erase(output);
             if(writeBuf.readableSize() > 0){
-                //when socket fd is writable, write remaining data
-
+                //if break from EAGAIN | EWOULDBLOCK, just return to channel event dispatcher
+                //next time when socket fd is writable, write remaining data
+                //if break from EPIPE, connection close procedure will be done during pending function processing
             }else{
-                cptr->disableWrite();
+                channel_.disableWrite();
             }
         }
 
-        void TcpConnection::closeConnection() {
+        void TcpConnection::closeConnectionInLoopThread() {
+            std::cout<<"tcp connection closeConnectionInLoopThread" <<std::endl;
+            //1.call user level close call back
+            //2.remove itself from tcpserver
+            loop_->assertInLoopThread();
+            channel_.disableChannel();
             closing_ = true;
-
+            if(removeFromSrv_){
+                removeFromSrv_(shared_from_this());
+            }
+            if(onPeerClose_){
+                onPeerClose_(shared_from_this());
+            }
         }
 
+        void TcpConnection::shutdownWrite() {
+            loop_->assertInLoopThread();
+            socket_.shutdownWR();
+            channel_.disableWrite();
+        }
 
+        void TcpConnection::closeConnection() {
+            auto tmp = std::bind(&TcpConnection::closeConnectionInLoopThread, shared_from_this());
+            loop_->runInLoopThread(tmp);
+        }
+
+        void TcpConnection::send(const std::string &str) {
+            auto tmp = std::bind(&TcpConnection::sendInLoop, shared_from_this(), str);
+            loop_->runInLoopThread(tmp);
+        }
+
+        void TcpConnection::sendInLoop(const std::string &str) {
+            loop_->assertInLoopThread();
+            if(closing_){return;}
+            writeBuf.append(str.data(), str.size());
+            channel_.enableWrite();
+        }
     }
 }

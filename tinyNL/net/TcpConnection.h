@@ -10,34 +10,45 @@
 #include "Socket.h"
 #include "Buffer.h"
 #include "TcpServer.h"
+#include <tinyNL/net/Channel.h>
 
 namespace tinyNL{
     namespace net{
         class Channel;
         class EventLoop;
         class Buffer;
-        class TcpConnection : Noncopyable{
+        //in the view of server side, if a peer shuts down, the connection shuts down.
+        class TcpConnection : Noncopyable, public std::enable_shared_from_this<TcpConnection>{
         public:
-            typedef std::function<void (Buffer&, TcpConnection&)> CallBack;
+            typedef std::function<void (std::shared_ptr<TcpConnection>)> CallBack;
+            typedef std::function<void(const std::shared_ptr<TcpConnection>&)> SelfRemoveFromSrv;
             explicit TcpConnection(EventLoop *loop, int fd, sockaddr_in &addr);
             ~TcpConnection();
             void start();
             void shutdownWrite();
+            void closeConnectionInLoopThread();
             void closeConnection();
             void setOnMsgCallBack(CallBack& onMsg){onMsgcb_ = onMsg;}
-            void setOnConnectionCallBack(CallBack& onConcb){onConnectioncb_=onConcb;}
+            void setOnConnectionCallBack(const CallBack& onConcb){onConnectioncb_=onConcb;}
+            void setOnPeerCloseCallBack(const CallBack& cb){onPeerClose_ = cb;}
+            void setSelfRemoveCallBack(const SelfRemoveFromSrv&cb){removeFromSrv_=cb;}
+            Buffer readBuf;//readFromSocket from fd
+            sockaddr_in peerAddr() const {return peer_;};
+            void send(const std::string& str);
         private:
             EventLoop* loop_;
             Socket socket_;
-            std::shared_ptr<Channel> cptr;
+            Channel channel_;
             sockaddr_in peer_;
-            Buffer readBuf;//readFromSocket from fd
             Buffer writeBuf;//writeToSocket to fd
             void channelRead();
             void channelWrite();
             CallBack onMsgcb_;
             CallBack onConnectioncb_;
+            CallBack onPeerClose_;
+            SelfRemoveFromSrv removeFromSrv_;
             bool closing_ = false;
+            void sendInLoop(const std::string& str);
         };
     }
 }

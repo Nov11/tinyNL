@@ -17,6 +17,7 @@ namespace tinyNL{
         }
 
         void TcpServer::start() {
+            loop_->assertInLoopThread();
             auto f = std::bind(&TcpServer::newConnection, this, std::placeholders::_1, std::placeholders::_2);
             std::function<void(int, sockaddr_in&)> func = f;
             accptr->setUserCallBack(func);
@@ -32,8 +33,39 @@ namespace tinyNL{
             //3.set call back
             ptr->setOnMsgCallBack(onMessage_);
             ptr->setOnConnectionCallBack(onConnection_);
+            ptr->setOnPeerCloseCallBack(onPeerClose_);
+
+            ptr->setSelfRemoveCallBack([this](const std::shared_ptr<TcpConnection>& param){ removeConnectionFromOwner(param); });
+            //this is called when acceptor received a new connection
+            if(onConnection_){
+                onConnection_(ptr);
+            }
             //4.set connection to work
             ptr->start();
+        }
+
+        void TcpServer::removeConnectionFromOwner(const std::shared_ptr<TcpConnection>& ptr) {
+            loop_->assertInLoopThread();
+            connectionList.erase(ptr);
+        }
+
+        void TcpServer::demolish() {
+            loop_->runInLoopThread([this](){ stopInLoopThread();});
+        }
+
+        void TcpServer::stopInLoopThread() {
+            loop_->assertInLoopThread();
+            //delete acceptor
+            accptr.reset();
+            //close related connections
+            decltype(connectionList) localList;
+            swap(localList, connectionList);
+            //tcpconection will invalid iterator of connectionList,
+            //so here uses a local one, whose tcp connection will run destor after this function returns.
+            for (auto &iter :localList) {
+                iter->closeConnectionInLoopThread();
+            }
+            std::cout<<"destor"<<std::endl;
         }
     }
 }

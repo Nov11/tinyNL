@@ -16,24 +16,23 @@ namespace tinyNL {
     namespace net {
         TimerQueue::TimerQueue(EventLoop *loop)
                 : loop_(loop),
-                  timerQueue(cmp) {
-            int ret = ::timerfd_create(CLOCK_REALTIME, TFD_NONBLOCK | TFD_CLOEXEC);
-            if (ret == -1) { tinyNL::base::LOG.logErrorAndExit(); }
-            timerfd_ = ret;
-            channelPtr_ = std::shared_ptr<Channel>(new Channel(timerfd_, loop_));
+                  timerfd_(::timerfd_create(CLOCK_REALTIME, TFD_NONBLOCK | TFD_CLOEXEC)),
+                  timerQueue(cmp),
+                  channel_(timerfd_, loop_) {
+            if (timerfd_ == -1) { tinyNL::base::LOG.logErrorAndExit(); }
             //set call back
             //deal with life time range later
             //timerqueue lives as long as its owner eventloop , which owns multiplexer,
             //so I think it is ok to publish 'this' pointer here
             rcb = [this]() { readCallBack(); };
             //std::bind(TimerQueue::channelReadCallBack, this, std::placeholders::_1);
-            channelPtr_->setReadCallBack(rcb);
-            channelPtr_->enableRead();
+            channel_.setReadCallBack(rcb);
+            channel_.enableRead();
         }
 
 
         TimerQueue::~TimerQueue() {
-            channelPtr_->disableChannel();
+            channel_.disableChannel();
             close(timerfd_);
         }
 
@@ -43,7 +42,7 @@ namespace tinyNL {
             //at least 8-byte
             uint64_t timeMsg;
             ssize_t ret = read(timerfd_, &timeMsg, sizeof(timeMsg));
-            if(ret == -1 && errno != EINTR){
+            if (ret == -1 && errno != EINTR) {
                 base::LOG.logErrorAndExit();
             }
             //maybe do this in pending functions in future
@@ -133,7 +132,7 @@ namespace tinyNL {
             }
         }
 
-        void TimerQueue::addTimer(const std::shared_ptr<Timer>& timer) {
+        void TimerQueue::addTimer(const std::shared_ptr<Timer> &timer) {
             //this is ok to chain these to one line. but clion always show red underline. why?
             auto tmp = std::bind(&TimerQueue::addTimerInEventLoop, this, timer);
             std::function<void()> function = tmp;

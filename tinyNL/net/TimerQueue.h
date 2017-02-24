@@ -10,6 +10,7 @@
 #include <memory>
 #include <vector>
 #include <set>
+#include "Channel.h"
 
 namespace tinyNL {
     namespace net {
@@ -37,11 +38,17 @@ namespace tinyNL {
 
             //avoid annoying grammar checkout from clion
             typedef decltype(cmp) *cmptype;
-            int timerfd_;
             EventLoop *loop_;
+            int timerfd_;
             //timerqueue owns every timer. only modified in owner thread of eventloop
+            //if timer obj is huge, pass smart pointer is better than copy timer obj.
+            //well, in retrospec unique_ptr's overhead is better, but assignment code is weired to write.
+            //for now, there is no much difference between using smart pointer and copying obj.
+            //for example, stack obj timer (copied several times as param)-> copied to funtor
+            // -> (if not in loop thread)funtor copied to pending task queue -> functor run , timer passed as param
+            // -> timer copied into timerQueue
             std::set<std::shared_ptr<Timer>, cmptype> timerQueue;
-            std::shared_ptr<Channel> channelPtr_;
+            Channel channel_;
             std::function<void()> rcb;
 
             void setNextTimeAlarm(bool on, long millionSeconds);

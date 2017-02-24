@@ -104,6 +104,12 @@ void Socket::setReuseAddr(bool on) {
     }
 }
 
+void Socket::shutdownWR() {
+    if(::shutdown(socket_, SHUT_WR)){
+        base::LOG.logErrorAndExit();
+    }
+}
+
 
 //got to pass up messages about peer close and occured errors to connection layer,
 //or tcpconnection will never know when to close the sock
