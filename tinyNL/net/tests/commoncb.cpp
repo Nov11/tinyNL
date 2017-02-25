@@ -5,6 +5,7 @@
 #include <tinyNL/base/Log.h>
 #include <sstream>
 #include <tinyNL/net/AddressUtility.h>
+#include <tinyNL/net/EventLoop.h>
 
 void onMessage(std::shared_ptr<tinyNL::net::TcpConnection> con) {
     std::string tmp;
@@ -31,4 +32,17 @@ void onPeerClose(std::shared_ptr<tinyNL::net::TcpConnection> con) {
       << ntohs(con->peerAddr().sin_port)
       << std::endl;
     tinyNL::base::LOG<<ss.str();
+}
+
+
+void fail(){
+    tinyNL::base::LOG<<"connection failed\n";
+}
+
+void suc(int fd){
+    tinyNL::base::LOG<<"suc";
+}
+
+void infinitLoop(tinyNL::net::EventLoop* loop_){
+    loop_->loop();
 }

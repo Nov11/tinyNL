@@ -30,8 +30,9 @@ namespace tinyNL{
             if(needShrimp(readIdx)){
                 std::vector<char> nvec;
                 std::copy(&innerbuf_[readIdx], &innerbuf_[writeIdx], std::back_inserter(nvec));
+                swap(innerbuf_, nvec);
                 readIdx = 0;
-                writeIdx = nvec.size();
+                writeIdx = innerbuf_.size();
             }
         }
 

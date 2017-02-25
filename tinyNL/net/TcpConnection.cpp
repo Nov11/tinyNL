@@ -141,7 +141,9 @@ namespace tinyNL {
                         closeConnectionInLoopThread();
                         return;
                     }else{
-                        base::LOG.logErrorAndExit();
+                        base::LOG.logError();
+                        closeConnectionInLoopThread();
+                        return;
                     }
                 }
             }

@@ -16,7 +16,9 @@ namespace tinyNL {
         public:
             using Pos = std::vector<char>::size_type;
             explicit Buffer():
-            upperLimit(1024){};
+            upperLimit(1024),
+            readIdx(0),
+            writeIdx(0){};
             ~Buffer()= default;
 //            void readFromSocket(Socket &);
 //            void writeToSocket(Socket &);
@@ -30,7 +32,7 @@ namespace tinyNL {
             std::vector<char>::size_type upperLimit;
             Pos readIdx;
             Pos writeIdx;
-            bool needShrimp(Pos blankLen){return blankLen > 256;}
+            bool needShrimp(Pos blankLen){return blankLen > 20;}
         };
     }
 }

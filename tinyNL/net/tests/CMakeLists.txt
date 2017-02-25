@@ -28,3 +28,9 @@ target_link_libraries(connectortest net base)
 
 add_executable(tcpcltTest tcpclientTest.cpp)
 target_link_libraries(tcpcltTest ${lib})
+
+add_executable(ppclt pingpongclt.cpp)
+target_link_libraries(ppclt ${lib})
+
+add_executable(ppsrv pingpongsrv.cpp)
+target_link_libraries(ppsrv ${lib})

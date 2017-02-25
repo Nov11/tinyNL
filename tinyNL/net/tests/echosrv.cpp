@@ -30,8 +30,7 @@ void onMsg(std::shared_ptr<TcpConnection> con){
     std::string tmp;
     tmp.append("usercode onMsg: ").append(s);
     base::LOG<<tmp;
-    con->send(tmp);
-
+    con->send(s);
 }
 
 void onConnection(std::shared_ptr<TcpConnection> con) {
