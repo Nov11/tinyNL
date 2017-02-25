@@ -18,6 +18,7 @@ namespace tinyNL{
 
             Log& operator<<(const std::string& str);
             void logError();
+            void logError(int errno_);
             void logErrorPthread(int error);
             void logErrorAndExit();
             void logErrorAndExitPthread(int error);

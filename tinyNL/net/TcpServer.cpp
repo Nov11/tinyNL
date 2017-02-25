@@ -36,8 +36,15 @@ namespace tinyNL{
             ptr->setOnConnectionCallBack(onConnection_);
             ptr->setOnPeerCloseCallBack(onPeerClose_);
 
-
-            ptr->setSelfRemoveCallBack([this](const std::shared_ptr<TcpConnection>& param){ removeConnectionFromOwner(param); });
+            std::weak_ptr<TcpServer> weak_ptr = shared_from_this();
+            ptr->setSelfRemoveCallBack([weak_ptr](const std::shared_ptr<TcpConnection>& param){
+                std::shared_ptr<TcpServer> sptr = weak_ptr.lock();
+                if(sptr){
+                    sptr->removeConnectionFromOwner(param);
+                }else{
+                    //server is destructed, no need to remove connction
+                }
+            });
             //this is called when acceptor received a new connection
             if(onConnection_){
                 onConnection_(ptr);

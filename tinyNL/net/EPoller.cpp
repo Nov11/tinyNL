@@ -42,7 +42,7 @@ namespace tinyNL {
             int ret = wait(&*evlist.begin(), maxevents, timeoutMillionSecond);
             if (ret < 0) {
                 if(errno == EINTR){
-                    tinyNL::base::LOG << "interrupted during epoll_wait";
+                    tinyNL::base::LOG << "interrupted during epoll_wait\n";
                 }else{
                     tinyNL::base::LOG << (std::string("error epoll_wait:") + strerror(errno));
                     _exit(1);

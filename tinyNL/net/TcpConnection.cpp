@@ -56,15 +56,22 @@ namespace tinyNL {
                     //first I think I should drain writebuff and then close this connection.
                     //but if peer closes socket write channel, it will never send back app level ack.
                     //even if writebuf is drained,
-                    //host app level user code can't tell if the message from writebuff is received by peer.
+                    //host app level user code can't tell if the message in writebuff is received by peer.
                     //so why bother drain writebuf. just go on to connection shutdown.
-                    //but can't do it here.
+
+                    //shutdown here, cause might have read some msg in ealry while loop.
                     //shutdown connection after read buffer is processed by app level user code.
                     base::LOG<<"read 0 peer close\n";
-                    channel_.disableChannel();
-                    closing_ = true;
-                    auto tmp = std::bind(&TcpConnection::closeConnectionInLoopThread, shared_from_this());
-                    loop_->addPendingTask(tmp);
+
+                    if(input == 0){
+                        closeConnectionInLoopThread();
+                        return;
+                    }else{
+                        channel_.disableChannel();
+                        closing_ = true;
+                        auto tmp = std::bind(&TcpConnection::closeConnectionInLoopThread, shared_from_this());
+                        loop_->addPendingTask(tmp);
+                    }
                     break;
                 } else {
                     //ret == -1
@@ -74,7 +81,11 @@ namespace tinyNL {
                         //it's ok. data in sock buffer is drained
                         break;
                     } else {
-                        base::LOG.logErrorAndExit();
+//                        base::LOG.logErrorAndExit();
+                        //shutdown program is a little over doing
+                        //just close this connection
+                        closeConnectionInLoopThread();
+                        return;
                     }
                 }
             }
@@ -82,7 +93,8 @@ namespace tinyNL {
 //            //2.pass this buf to user callback,run in pending queue;
 //            auto tmp = std::bind(onMsgcb_, shared_from_this());
 //            loop_->runInLoopThread(tmp);
-            onMsgcb_(shared_from_this());
+            if(onMsgcb_){onMsgcb_(shared_from_this());}
+
         }
 
         void TcpConnection::channelWrite() {
@@ -126,11 +138,8 @@ namespace tinyNL {
                     }else if(errno == EPIPE){
                         base::LOG.logError();
                         //peer closed socket; stop writing; demolish reading; do user callback; close connection;
-                        channel_.disableChannel();
-                        closing_ = true;
-                        auto tmp = std::bind(&TcpConnection::closeConnectionInLoopThread, shared_from_this());
-                        loop_->addPendingTask(tmp);
-                        break;
+                        closeConnectionInLoopThread();
+                        return;
                     }else{
                         base::LOG.logErrorAndExit();
                     }
@@ -140,7 +149,7 @@ namespace tinyNL {
             if(writeBuf.readableSize() > 0){
                 //if break from EAGAIN | EWOULDBLOCK, just return to channel event dispatcher
                 //next time when socket fd is writable, write remaining data
-                //if break from EPIPE, connection close procedure will be done during pending function processing
+                //<del>if break from EPIPE, connection close procedure will be done during pending function processing</del>
             }else{
                 channel_.disableWrite();
             }
@@ -153,12 +162,14 @@ namespace tinyNL {
             loop_->assertInLoopThread();
             channel_.disableChannel();
             closing_ = true;
+            std::shared_ptr<TcpConnection> con = shared_from_this();
             if(removeFromSrv_){
-                removeFromSrv_(shared_from_this());
+                removeFromSrv_(con);
             }
             if(onPeerClose_){
-                onPeerClose_(shared_from_this());
+                onPeerClose_(con);
             }
+            //con des
         }
 
         void TcpConnection::shutdownWrite() {
@@ -182,6 +193,14 @@ namespace tinyNL {
             if(closing_){return;}
             writeBuf.append(str.data(), str.size());
             channel_.enableWrite();
+        }
+
+        std::string TcpConnection::read() {
+            char *ptr = readBuf.readPtr();
+            size_t len = readBuf.readableSize();
+            std::string ret(ptr, len);
+            readBuf.erase(len);
+            return ret;
         }
     }
 }

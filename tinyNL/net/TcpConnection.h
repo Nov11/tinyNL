@@ -35,6 +35,7 @@ namespace tinyNL{
             Buffer readBuf;//readFromSocket from fd
             sockaddr_in peerAddr() const {return peer_;};
             void send(const std::string& str);
+            std::string read();
         private:
             EventLoop* loop_;
             Socket socket_;
@@ -44,7 +45,7 @@ namespace tinyNL{
             void channelRead();
             void channelWrite();
             CallBack onMsgcb_;
-            CallBack onConnectioncb_;
+            CallBack onConnectioncb_;//not use yet
             CallBack onPeerClose_;
             SelfRemoveFromSrv removeFromSrv_;
             bool closing_ = false;

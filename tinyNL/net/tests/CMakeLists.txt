@@ -1,3 +1,5 @@
+add_library(testlib commoncb.cpp)
+set(lib net base testlib)
 add_executable(et EventLoopTest.cpp)
 target_link_libraries(et net base)
 
@@ -18,3 +20,11 @@ target_link_libraries(elt net base)
 
 add_executable(elstop eventloopstop.cpp)
 target_link_libraries(elstop net base)
+
+add_executable(echosrv echosrv.cpp)
+target_link_libraries(echosrv net base)
+add_executable(connectortest connectortest.cpp)
+target_link_libraries(connectortest net base)
+
+add_executable(tcpcltTest tcpclientTest.cpp)
+target_link_libraries(tcpcltTest ${lib})

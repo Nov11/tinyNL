@@ -76,6 +76,7 @@ namespace tinyNL {
 
         void Channel::disableChannel() {
             if(disabled){return;}
+            if(added == false && disabled == false){return;}
             disabled = true;
             updateChannel();
         }

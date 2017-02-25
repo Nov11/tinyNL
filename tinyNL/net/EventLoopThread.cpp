@@ -38,6 +38,10 @@ namespace tinyNL {
             tf_(&loop);
         }
 
+        void EventLoopThread::stop() {
+            loop_->stop();
+        }
+
 
     }
 }

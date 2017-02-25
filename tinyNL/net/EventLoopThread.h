@@ -19,6 +19,7 @@ namespace tinyNL{
             ~EventLoopThread(){thread_.join();}
             EventLoop* start();
             void join(){ thread_.join(); }
+            void stop();
         private:
             FunctionRunningInThread tf_;
             base::Thread thread_;

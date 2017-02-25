@@ -22,7 +22,7 @@ namespace tinyNL{
         //this is supposed to be a stack obj and lives as long as eventloop
         //so srv lives longer than tcp connections
         //
-        class TcpServer :Noncopyable{
+        class TcpServer :Noncopyable, public std::enable_shared_from_this<TcpServer>{
         public:
             typedef std::function<void (std::shared_ptr<TcpConnection>)> CallBack;
             explicit TcpServer(EventLoop* loop, int port);

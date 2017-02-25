@@ -54,6 +54,14 @@ namespace tinyNL {
             auto expiredTimers = getExpiredTimersAndRemoveThemFromTimerQueue();
             auto pendingTasks = insertRepeatableTimerAndGenePendingTasks(expiredTimers);
             //queue them
+            //in the assumption that the followings all run in loop thread.
+            //if one task is queued in pending task and then canceled in onMsg/another timer's callback,
+            //then task will run one more time after
+            //deltimer return. I think it's ok.  since del is usually used on repeated timered task.
+            //rarely delete one shot task. and repeatable task run on more time is acceptable.
+            //if it must be guaranteed that after the return of deltimer , the timer will not run any more,
+            //just run every expired time in this handler.
+            //so, deltimer means a promise that it will delete timer and will be no more execution.
             loop_->addPendingTasks(pendingTasks);
             //find the nearest timer that will expire and set it up
             if (timerQueue.empty()) {
@@ -125,8 +133,8 @@ namespace tinyNL {
 
         void TimerQueue::addTimerInEventLoop(const std::shared_ptr<Timer> &timer) {
             loop_->assertInLoopThread();
-            timerQueue.insert(timer);
-            if (timerQueue.size() == 1) {
+            auto pair = timerQueue.insert(timer);
+            if (pair.first == timerQueue.begin()) {
                 //what if timer is already expired, will sys wake the proc up
                 setNextTimeAlarm(true, timer->startTime());
             }

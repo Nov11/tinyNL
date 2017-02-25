@@ -14,6 +14,7 @@ namespace tinyNL{
             inner.append(std::to_string(net::CurrentThread::tid()));
             inner.append(" ");
             inner.append(str);
+            inner.append("\n");
             write(outputfd_, inner.c_str(), strlen(inner.c_str()));
             return *this;
         }
@@ -36,6 +37,11 @@ namespace tinyNL{
         void Log::logErrorAndExitPthread(int error) {
             logErrorPthread(error);
             _exit(1);
+        }
+
+        void Log::logError(int param) {
+            std::string msg(strerror(param));
+            *this << msg;
         }
 
     }
