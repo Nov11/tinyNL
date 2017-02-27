@@ -198,6 +198,8 @@ namespace tinyNL {
             if(closing_){return;}
             writeBuf.append(str.data(), str.size());
             channel_.enableWrite();
+            //eager send not sure about its impact
+            channelWrite();
         }
 
         std::string TcpConnection::read() {

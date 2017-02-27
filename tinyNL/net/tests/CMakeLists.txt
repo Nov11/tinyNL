@@ -37,3 +37,6 @@ target_link_libraries(ppsrv ${lib})
 
 add_executable(discardsrv discardsrv.cpp)
 target_link_libraries(discardsrv net base)
+
+add_executable(daytimesrv daytimesrv.cpp)
+target_link_libraries(daytimesrv net base)
