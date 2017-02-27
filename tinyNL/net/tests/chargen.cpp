@@ -40,7 +40,7 @@ int main(){
 
     //timed shutdown tcp server after 60 sec from now.
     //first disable server, then stop main thread looping.
-    loop.addTimerSinceNow([&loop,&srvptr](){srvptr->demolish();loop.stop();}, 10 * 1000, 0, 0);
+    loop.addTimerSinceNow([&loop,&srvptr](){srvptr->demolish();loop.stop();}, 60 * 1000, 0, 0);
 
     //main thread starts working here
     loop.loop();

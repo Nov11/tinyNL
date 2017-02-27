@@ -15,8 +15,8 @@ target_link_libraries(tcpsrv net base pthread)
 
 add_executable(buffertest buffertest.cpp)
 target_link_libraries(buffertest net base)
-add_executable(elt EventLoopThreadTest.cpp)
-target_link_libraries(elt net base)
+add_executable(eltt EventLoopThreadTest.cpp)
+target_link_libraries(eltt net base)
 
 add_executable(elstop eventloopstop.cpp)
 target_link_libraries(elstop net base)
