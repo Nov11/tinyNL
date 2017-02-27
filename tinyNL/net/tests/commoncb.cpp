@@ -7,7 +7,7 @@
 #include <tinyNL/net/AddressUtility.h>
 #include <tinyNL/net/EventLoop.h>
 
-void onMessage(std::shared_ptr<tinyNL::net::TcpConnection> con) {
+void onMessage(const std::shared_ptr<tinyNL::net::TcpConnection>&con) {
     std::string tmp;
     tmp.append("usercode onMsg: ").append(con->read());
     tinyNL::base::LOG<<tmp;
@@ -16,7 +16,7 @@ void onMessage(std::shared_ptr<tinyNL::net::TcpConnection> con) {
 //    con->closeConnection();
 }
 
-void onConnection(std::shared_ptr<tinyNL::net::TcpConnection> con) {
+void onConnection(const std::shared_ptr<tinyNL::net::TcpConnection>& con) {
     std::stringstream ss;
     ss << "usercode onCon new connection established. peer: " << tinyNL::net::AddressUtility::toString(con->peerAddr())
        << " port: "
@@ -25,7 +25,7 @@ void onConnection(std::shared_ptr<tinyNL::net::TcpConnection> con) {
     tinyNL::base::LOG<<ss.str();
 }
 
-void onPeerClose(std::shared_ptr<tinyNL::net::TcpConnection> con) {
+void onPeerClose(const std::shared_ptr<tinyNL::net::TcpConnection>& con) {
     std::stringstream ss;
     ss<< "usercode onClose peer close :" << tinyNL::net::AddressUtility::toString(con->peerAddr())
       << " port: "

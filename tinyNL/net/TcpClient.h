@@ -19,7 +19,7 @@ namespace tinyNL{
             typedef std::function<void()> Fail;
 
             //connection
-            typedef std::function<void (std::shared_ptr<TcpConnection>)> ConCallBack;
+            typedef std::function<void (const std::shared_ptr<TcpConnection>&)> ConCallBack;
             TcpClient(EventLoop* loop, sockaddr_in& peer);
             ~TcpClient()=default;
             void start();

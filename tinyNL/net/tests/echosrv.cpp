@@ -25,7 +25,7 @@ void infinitLoop(EventLoop* loop_){
 
 
 
-void onMsg(std::shared_ptr<TcpConnection> con){
+void onMsg(const std::shared_ptr<TcpConnection>& con){
     std::string s = con->read();
     std::string tmp;
     tmp.append("usercode onMsg: ").append(s);
@@ -33,7 +33,7 @@ void onMsg(std::shared_ptr<TcpConnection> con){
     con->send(s);
 }
 
-void onConnection(std::shared_ptr<TcpConnection> con) {
+void onConnection(const std::shared_ptr<TcpConnection>& con) {
     std::stringstream ss;
     ss << "usercode onCon new connection from host: " << AddressUtility::toString(con->peerAddr())
        << " port: "
@@ -42,7 +42,7 @@ void onConnection(std::shared_ptr<TcpConnection> con) {
     base::LOG<<ss.str();
 }
 
-void onPeerClose(std::shared_ptr<TcpConnection> con) {
+void onPeerClose(const std::shared_ptr<TcpConnection>& con) {
     std::stringstream ss;
     ss<< "usercode onClose peer close :" << AddressUtility::toString(con->peerAddr())
       << " port: "

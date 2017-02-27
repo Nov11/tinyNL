@@ -20,7 +20,7 @@ void shut(int delay){
     loop.stop();
 }
 
-void pong(std::shared_ptr<TcpConnection> con){
+void pong(const std::shared_ptr<TcpConnection>& con){
     std::string receive = con->read();
     std::string output = "from peer:";
     output.append(receive);

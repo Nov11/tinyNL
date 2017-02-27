@@ -10,7 +10,7 @@
 using namespace tinyNL;
 using namespace tinyNL::net;
 
-void onMsg(std::shared_ptr<TcpConnection> con) {
+void onMsg(const std::shared_ptr<TcpConnection>& con) {
     Buffer &buffer = con->readBuf;
     char *ptr = buffer.readPtr();
     size_t len = buffer.readableSize();

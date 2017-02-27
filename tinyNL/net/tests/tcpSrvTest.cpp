@@ -24,7 +24,7 @@ EventLoop loop;
 TcpServer tcpServer(&loop, 60000);
 std::shared_ptr<TcpConnection> chkptr;
 
-void fff(std::shared_ptr<TcpConnection> con) {
+void fff(const std::shared_ptr<TcpConnection>& con) {
     Buffer &buffer = con->readBuf;
     char *ptr = buffer.readPtr();
     size_t len = buffer.readableSize();
@@ -40,7 +40,7 @@ void fff(std::shared_ptr<TcpConnection> con) {
 //    con->closeConnection();
 }
 
-void onConnection(std::shared_ptr<TcpConnection> con) {
+void onConnection(const std::shared_ptr<TcpConnection>& con) {
     std::stringstream ss;
     ss << "usercode onCon new connection from host: " << AddressUtility::toString(con->peerAddr())
               << " port: "
@@ -49,7 +49,7 @@ void onConnection(std::shared_ptr<TcpConnection> con) {
 //    base::LOG<<ss.str();
 }
 
-void onPeerClose(std::shared_ptr<TcpConnection> con) {
+void onPeerClose(const std::shared_ptr<TcpConnection>& con) {
     std::stringstream ss;
     ss<< "usercode onClose peer close :" << AddressUtility::toString(con->peerAddr())
                                                  << " port: "
@@ -83,9 +83,10 @@ void infi(EventLoop* loop_){
 EventLoopThread eventLoopThread(infi);
 int main() {
     base::LOG<<"enter main\n";
-    std::function<void(std::shared_ptr<TcpConnection>)> cb(fff);
-    std::function<void(std::shared_ptr<TcpConnection>)> cb2(::onConnection);
-    std::function<void(std::shared_ptr<TcpConnection>)> cb3(::onPeerClose);
+    using CB = std::function<void(const std::shared_ptr<TcpConnection>&)>;
+    CB cb(::fff);
+    CB cb2(::onConnection);
+    CB cb3(::onPeerClose);
     tcpServer.setOnMessageCallBack(cb);
     tcpServer.setOnConnectionCallBack(cb2);
     tcpServer.setOnPeerCloseCallBack(cb3);

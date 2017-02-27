@@ -8,9 +8,9 @@
 #include <memory>
 #include <tinyNL/net/TcpConnection.h>
 
-void onMessage(std::shared_ptr<tinyNL::net::TcpConnection> con);
-void onConnection(std::shared_ptr<tinyNL::net::TcpConnection> con);
-void onPeerClose(std::shared_ptr<tinyNL::net::TcpConnection> con);
+void onMessage(const std::shared_ptr<tinyNL::net::TcpConnection>& con);
+void onConnection(const std::shared_ptr<tinyNL::net::TcpConnection>& con);
+void onPeerClose(const std::shared_ptr<tinyNL::net::TcpConnection>& con);
 void fail();
 void suc(int);
 void infinitLoop(tinyNL::net::EventLoop* loop_);

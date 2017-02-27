@@ -20,7 +20,7 @@ namespace tinyNL{
         //in the view of server side, if a peer shuts down, the connection shuts down.
         class TcpConnection : Noncopyable, public std::enable_shared_from_this<TcpConnection>{
         public:
-            typedef std::function<void (std::shared_ptr<TcpConnection>)> CallBack;
+            typedef std::function<void (const std::shared_ptr<TcpConnection>&)> CallBack;
             typedef std::function<void(const std::shared_ptr<TcpConnection>&)> SelfRemoveFromSrv;
             explicit TcpConnection(EventLoop *loop, int fd, sockaddr_in &addr);
             ~TcpConnection();

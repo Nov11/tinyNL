@@ -12,7 +12,7 @@
 using namespace tinyNL::net;
 using namespace tinyNL::base;
 
-void onMessageDiscard(std::shared_ptr<TcpConnection> con) {
+void onMessageDiscard(const std::shared_ptr<TcpConnection>& con) {
     std::string msg = con->read();
     std::stringstream ss;
     ss << "discard :" << msg << " from " << AddressUtility::toString( con->peerAddr())

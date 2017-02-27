@@ -15,7 +15,7 @@
 using namespace tinyNL;
 using namespace tinyNL::net;
 
-void ping(std::shared_ptr<TcpConnection> con){
+void ping(const std::shared_ptr<TcpConnection>& con){
     std::string msg = con->read();
     base::LOG<<msg;
     if(msg.size() > 2){
@@ -23,7 +23,7 @@ void ping(std::shared_ptr<TcpConnection> con){
     }
     con->send(msg);
 }
-void init(std::shared_ptr<TcpConnection> con){
+void init(const std::shared_ptr<TcpConnection>& con){
     con->send("ping");
 }
 int main(){
