@@ -24,7 +24,7 @@ namespace tinyNL {
         public:
             //one timerqueue should be associate with only one eventloop
             //it's weird that one timer queue deals with multi eventloop
-            TimerQueue(EventLoop *eventLoop);
+            explicit TimerQueue(EventLoop *eventLoop);
 
             ~TimerQueue();
 

@@ -7,6 +7,8 @@
 
 namespace tinyNL{
     namespace net{
+        //seems that this is just a wrapper of eventloopthread,
+        //implment this when acutally needed.
         class EventLoopThreadPool {
         public:
         private:

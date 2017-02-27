@@ -24,7 +24,7 @@ namespace tinyNL{
         class Acceptor : Noncopyable{
         public:
             typedef std::function<void(int, sockaddr_in&)> AcceptorUserCallBack;
-            explicit Acceptor(EventLoop *loop, int port);
+            Acceptor(EventLoop *loop, int port);
             void setUserCallBack(const AcceptorUserCallBack & userCallBack){userCallBack_=userCallBack;}
             void start();
             ~Acceptor();

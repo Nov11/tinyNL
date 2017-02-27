@@ -45,7 +45,7 @@ int main(){
     //main thread starts working here
     loop.loop();
     //stop event looping in worker thread
-    loop1->stop();
+//    loop1->stop();
 
     LOG<<"main return";
 }

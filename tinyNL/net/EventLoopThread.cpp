@@ -9,7 +9,7 @@
 namespace tinyNL {
     namespace net {
 
-        EventLoopThread::EventLoopThread(const EventLoopThread::FunctionRunningInThread tf)
+        EventLoopThread::EventLoopThread(const EventLoopThread::FunctionRunningInThread& tf)
                 : tf_(tf),
                   thread_(std::bind(&EventLoopThread::eventLoopThread, this)),
                   loop_(nullptr),
@@ -40,6 +40,16 @@ namespace tinyNL {
 
         void EventLoopThread::stop() {
             loop_->stop();
+        }
+
+        EventLoopThread::EventLoopThread() :EventLoopThread(&EventLoopThread::defaultThreadFunc){
+
+        }
+
+        //use this for default constructor only, do not use it elsewhere.
+        //it starts loop. the function servers as tf_ in eventLoopThread function which just lies above;
+        void EventLoopThread::defaultThreadFunc(EventLoop *eventLoop) {
+            eventLoop->loop();
         }
 
 

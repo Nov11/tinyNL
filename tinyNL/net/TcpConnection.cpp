@@ -10,7 +10,7 @@
 
 namespace tinyNL {
     namespace net {
-
+        const int TcpConnection::WRITEBUFUPPERLIMIT = 1024;
         TcpConnection::TcpConnection(EventLoop *loop, int fd, sockaddr_in &addr)
                 : loop_(loop),
                   socket_(fd),
@@ -186,6 +186,9 @@ namespace tinyNL {
         }
 
         void TcpConnection::send(const std::string &str) {
+            if(writeBuf.readableSize() > WRITEBUFUPPERLIMIT){
+                closeConnection();
+            }
             auto tmp = std::bind(&TcpConnection::sendInLoop, shared_from_this(), str);
             loop_->runInLoopThread(tmp);
         }

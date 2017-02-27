@@ -21,7 +21,7 @@ using namespace tinyNL::net;
 
 EventLoop loop;
 
-TcpServer tcpServer(&loop, 60000);
+std::shared_ptr<TcpServer> tcpServer(new TcpServer(&loop, 60000));
 std::shared_ptr<TcpConnection> chkptr;
 
 void fff(const std::shared_ptr<TcpConnection>& con) {
@@ -74,7 +74,7 @@ void stopEventLoop(uint32_t sec) {
 
 void stopTcpSrvInanoterThread(){
     sleep(20);
-    tcpServer.demolish();
+    tcpServer->demolish();
 }
 void infi(EventLoop* loop_){
     loop_->loop();
@@ -87,20 +87,20 @@ int main() {
     CB cb(::fff);
     CB cb2(::onConnection);
     CB cb3(::onPeerClose);
-    tcpServer.setOnMessageCallBack(cb);
-    tcpServer.setOnConnectionCallBack(cb2);
-    tcpServer.setOnPeerCloseCallBack(cb3);
+    tcpServer->setOnMessageCallBack(cb);
+    tcpServer->setOnConnectionCallBack(cb2);
+    tcpServer->setOnPeerCloseCallBack(cb3);
 
     EventLoop* loop1 = eventLoopThread.start();
-    tcpServer.addWorkEventLoop(loop1);
-    tcpServer.start();
+    tcpServer->addWorkEventLoop(loop1);
+    tcpServer->start();
 //    loop.addTimerSinceNow([&](){stopTcpServer(&tcpServer);}, 6* 1000, 0, 0);
 
     std::thread th(::stopTcpSrvInanoterThread);
     std::thread th1(::stopEventLoop, 30);
 
     loop.loop();
-    loop1->stop();
+//    loop1->stop();
     th.join();
     th1.join();
     std::cout<<"chkptr use_count: "<<chkptr.use_count()<<std::endl;

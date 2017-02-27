@@ -22,7 +22,7 @@ namespace tinyNL{
         public:
             typedef std::function<void (const std::shared_ptr<TcpConnection>&)> CallBack;
             typedef std::function<void(const std::shared_ptr<TcpConnection>&)> SelfRemoveFromSrv;
-            explicit TcpConnection(EventLoop *loop, int fd, sockaddr_in &addr);
+            TcpConnection(EventLoop *loop, int fd, sockaddr_in &addr);
             ~TcpConnection();
             void start();
             void shutdownWrite();
@@ -34,7 +34,7 @@ namespace tinyNL{
             void setSelfRemoveCallBack(const SelfRemoveFromSrv&cb){removeFromSrv_=cb;}
             Buffer readBuf;//readFromSocket from fd
             sockaddr_in peerAddr() const {return peer_;};
-            void send(const std::string& str);
+            void send(const std::string& str);//if writebuf reach a certain limit, shutdown connection
             std::string read();
         private:
             EventLoop* loop_;
@@ -51,6 +51,7 @@ namespace tinyNL{
             bool closing_ = false;
             void sendInLoop(const std::string& str);
             void startInLoop();
+            const static int WRITEBUFUPPERLIMIT;
         };
     }
 }

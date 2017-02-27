@@ -22,9 +22,9 @@ void onMsg(const std::shared_ptr<TcpConnection>& con) {
 }
 
 void fff(EventLoop* loop){
-    TcpServer server(loop, 60000);
-    server.setOnMessageCallBack(::onMsg);
-    server.start();
+    std::shared_ptr<TcpServer> server = std::make_shared<TcpServer>(loop, 60000);
+    server->setOnMessageCallBack(::onMsg);
+    server->start();
     loop->loop();
 }
 int main(){
@@ -32,6 +32,6 @@ int main(){
     EventLoop * loopPtr = th.start();
     std::cout<<"loopPtr:"<<loopPtr<<std::endl;
     sleep(20);
-    loopPtr->stop();
+//    loopPtr->stop();
     std::cout<<"main return"<<std::endl;
 }

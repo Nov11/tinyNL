@@ -25,7 +25,7 @@ namespace tinyNL{
         class TcpServer :Noncopyable, public std::enable_shared_from_this<TcpServer>{
         public:
             typedef std::function<void (const std::shared_ptr<TcpConnection>&)> CallBack;
-            explicit TcpServer(EventLoop* loop, int port);
+            TcpServer(EventLoop* loop, int port);
 
             //for client use
             void setOnConnectionCallBack(const CallBack& cb){onConnection_ = cb;}

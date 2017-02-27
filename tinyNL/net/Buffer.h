@@ -15,7 +15,7 @@ namespace tinyNL {
         class Buffer : Noncopyable {
         public:
             using Pos = std::vector<char>::size_type;
-            explicit Buffer():
+            Buffer():
             upperLimit(1024),
             readIdx(0),
             writeIdx(0){};

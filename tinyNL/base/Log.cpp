@@ -15,6 +15,8 @@ namespace tinyNL{
             inner.append(" ");
             inner.append(str);
             inner.append("\n");
+            //caution: this will eliminate chars after possible null in str
+            //which means do not use write with literal string as pointer and sizeof it as len
             write(outputfd_, inner.c_str(), strlen(inner.c_str()));
             return *this;
         }

@@ -26,7 +26,7 @@ void fail(){
 
 void suc(int fd){
     base::LOG<<"suc";
-    ssize_t ret = write(fd, "llll", sizeof("llll"));
+    ssize_t ret = write(fd, "llll", 4);
     if(ret == 0){
 
     }

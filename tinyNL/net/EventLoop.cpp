@@ -73,6 +73,10 @@ namespace tinyNL {
                 //2.deal with pending functions
                 doPendingTask();
             }
+            //in case stop_ was set to true at the moment when dopendingtask in while loop is returned and
+            //some functors closing connections inserted into pending task queue.
+            //if not call dopendingtask again, those closing functors will not be invoked. close callbacks are missed.
+            doPendingTask();
             looping_ = false;
         }
 

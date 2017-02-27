@@ -52,8 +52,8 @@ int main(){
 
 
     server->demolish();
-    elt1.stop();
-    elt2.stop();
+//    elt1.stop();
+//    elt2.stop();
     th.join();
     base::LOG<<"return from main\n";
 }
