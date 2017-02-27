@@ -7,11 +7,12 @@
 #include <tinyNL/net/TcpConnection.h>
 #include <tinyNL/net/AddressUtility.h>
 #include <tinyNL/net/EventLoopThread.h>
+#include "commonccb.h"
 
 using namespace tinyNL::net;
 using namespace tinyNL::base;
 
-void onConnection(const std::shared_ptr<TcpConnection> &con) {
+void onDayTimerService(const std::shared_ptr<TcpConnection> &con) {
     std::stringstream ss;
     ss << "DayTime Server:" << " peer " << AddressUtility::toString(con->peerAddr())
        << " port:" << ntohs(con->peerAddr().sin_port)
@@ -30,7 +31,7 @@ int main() {
     EventLoop loop;
     std::shared_ptr<TcpServer> srvptr(new TcpServer(&loop, 60000));
     //set daytime callback
-    srvptr->setOnConnectionCallBack(::onConnection);
+    srvptr->setOnConnectionCallBack(::onDayTimerService);
     srvptr->start();
 
     //timed shutdown tcp server after 60 sec from now.

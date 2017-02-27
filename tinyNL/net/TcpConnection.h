@@ -48,7 +48,7 @@ namespace tinyNL{
             CallBack onMsgcb_;
             CallBack onConnectioncb_;//not use yet
             CallBack onPeerClose_;
-            CallBack onWriteComplete_;
+            CallBack onWriteComplete_;//seldom used
             SelfRemoveFromSrv removeFromSrv_;
             bool closing_ = false;
             void sendInLoop(const std::string& str);

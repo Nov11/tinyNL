@@ -79,9 +79,10 @@ namespace tinyNL {
             void addPendingTasks(const std::vector<std::function<void()>> &);
 
             void addPendingTask(const std::function<void()> &);
+            void queueInLoopAndWakeLoopThread(const std::function<void()> &function);
         private:
-            typedef std::vector<std::function<void()>> PendingTaskList;
 
+            typedef std::vector<std::function<void()>> PendingTaskList;
             const pid_t threadId_;
             bool looping_;
             std::atomic_bool stop_;
@@ -90,6 +91,7 @@ namespace tinyNL {
             tinyNL::base::Mutex mutex_;
             int eventfd_;
             Channel channel_;
+
             //every eventloop owns one timerqueue.
             TimerQueue timerQueueOfEventLoop_;
 
@@ -98,8 +100,6 @@ namespace tinyNL {
             void doPendingTask();
 
             int setUpEventFd();
-
-            void queueInLoopAndWakeLoopThread(const std::function<void()> &function);
         };
     }
 }

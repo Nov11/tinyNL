@@ -157,7 +157,8 @@ namespace tinyNL {
                     //avoid stack overflow if onWrite calls send which eagerly calls write again
                     //for now, it's ok to run writeComplete in next dopendingtask
                     auto tmp = std::bind(onWriteComplete_, shared_from_this());
-                    loop_->addPendingTask(tmp);
+                    //or the pending task will not be invoked until io multiplexer timed out.
+                    loop_->queueInLoopAndWakeLoopThread(tmp);
                 }else{
                     channel_.disableWrite();
                 }

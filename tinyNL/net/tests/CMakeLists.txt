@@ -39,7 +39,7 @@ add_executable(discardsrv discardsrv.cpp)
 target_link_libraries(discardsrv net base)
 
 add_executable(daytimesrv daytimesrv.cpp)
-target_link_libraries(daytimesrv net base)
+target_link_libraries(daytimesrv ${lib})
 
 add_executable(timesrv timesrv.cpp)
 target_link_libraries(timesrv net base)

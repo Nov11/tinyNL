@@ -49,7 +49,7 @@ namespace tinyNL {
             }
             //new connection and set it up with eventloop
             std::stringstream tmp;
-            tmp<< "get new connection :";
+            tmp<< "Acceptor get new connection :";
             tmp<<AddressUtility::toString(addr)<<" port: "<<ntohs(addr.sin_port)<<std::endl;
             base::LOG<<tmp.str();
             //for test
