@@ -35,6 +35,7 @@ namespace tinyNL{
             ptr->setOnMsgCallBack(onMessage_);
             ptr->setOnConnectionCallBack(onConnection_);
             ptr->setOnPeerCloseCallBack(onPeerClose_);
+            ptr->setOnWriteComplete(onWriteComplete_);
 
             std::weak_ptr<TcpServer> weak_ptr = shared_from_this();
             ptr->setSelfRemoveCallBack([weak_ptr](const std::shared_ptr<TcpConnection>& param){

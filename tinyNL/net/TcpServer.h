@@ -31,6 +31,7 @@ namespace tinyNL{
             void setOnConnectionCallBack(const CallBack& cb){onConnection_ = cb;}
             void setOnMessageCallBack(const CallBack& cb){onMessage_ = cb;}
             void setOnPeerCloseCallBack(const CallBack& cb){onPeerClose_ = cb;}
+            void setOnWriteComplete(const CallBack& cb){onWriteComplete_ = cb;}
             ~TcpServer()= default;
             void start();
             void demolish();//do not expect to restart server after calling this
@@ -47,6 +48,7 @@ namespace tinyNL{
             CallBack onPeerClose_;
             CallBack onConnection_;
             CallBack onMessage_;
+            CallBack onWriteComplete_;
             void stopInLoopThread();
             //should set a limit to number of active connections
             int cnt = 0;

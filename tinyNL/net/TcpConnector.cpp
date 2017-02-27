@@ -84,6 +84,7 @@ namespace tinyNL {
         }
 
         void TcpConnector::tryConnectingAgain() {
+            loop_->assertInLoopThread();
             cptr->disableChannel();
             close(socket_);
             tried++;

@@ -32,6 +32,7 @@ namespace tinyNL{
             void setOnConnectionCallBack(const CallBack& onConcb){onConnectioncb_=onConcb;}
             void setOnPeerCloseCallBack(const CallBack& cb){onPeerClose_ = cb;}
             void setSelfRemoveCallBack(const SelfRemoveFromSrv&cb){removeFromSrv_=cb;}
+            void setOnWriteComplete(const CallBack& cb){onWriteComplete_ = cb;}
             Buffer readBuf;//readFromSocket from fd
             sockaddr_in peerAddr() const {return peer_;};
             void send(const std::string& str);//if writebuf reach a certain limit, shutdown connection
@@ -47,6 +48,7 @@ namespace tinyNL{
             CallBack onMsgcb_;
             CallBack onConnectioncb_;//not use yet
             CallBack onPeerClose_;
+            CallBack onWriteComplete_;
             SelfRemoveFromSrv removeFromSrv_;
             bool closing_ = false;
             void sendInLoop(const std::string& str);

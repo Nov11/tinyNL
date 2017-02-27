@@ -12,7 +12,7 @@ namespace tinyNL{
     namespace net{
         class EventLoop;
         //suppose client lives longer than its tcpconnector
-        class TcpClient :Noncopyable {
+        class TcpClient :Noncopyable, public std::enable_shared_from_this<TcpClient> {
         public:
             //connector
 //            typedef std::function<void(int)> Succ;
@@ -36,6 +36,8 @@ namespace tinyNL{
             std::shared_ptr<TcpConnection> connection_;
             void connectionEstablished(int);
             void connectionFailed();
+            void removeConnectionFromTcpClient(const std::shared_ptr<TcpConnection>&);
+            static void removeConnectionFromTcpClientCallBack(const std::weak_ptr<TcpClient>& wptr, const std::shared_ptr<TcpConnection>&);
             Fail fcb_;
 //            Succ scb_;
             ConCallBack onMsg_;

@@ -12,7 +12,6 @@ using namespace tinyNL::net;
 using namespace tinyNL::base;
 
 void onConnection(const std::shared_ptr<TcpConnection> &con) {
-    std::string msg = con->read();
     std::stringstream ss;
     ss << "DayTime Server:" << " peer " << AddressUtility::toString(con->peerAddr())
        << " port:" << ntohs(con->peerAddr().sin_port)

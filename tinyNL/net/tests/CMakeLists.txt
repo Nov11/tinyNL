@@ -46,3 +46,6 @@ target_link_libraries(timesrv net base)
 
 add_executable(timeclt timeclt.cpp)
 target_link_libraries(timeclt ${lib})
+
+add_executable(chargen chargen.cpp)
+target_link_libraries(chargen ${lib})

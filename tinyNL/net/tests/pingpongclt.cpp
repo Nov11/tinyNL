@@ -33,16 +33,16 @@ int main(){
     peer.sin_port = htons(60000);
     peer.sin_family=AF_INET;
 
-    TcpClient tcpClient(&loop, peer);
-    tcpClient.setConnectionFailCallBack(fail);
-    tcpClient.setOnConnected(::init);
-    tcpClient.setOnMsgCB(::ping);
-    tcpClient.setOnPeerClose(::onPeerClose);
+    std::shared_ptr<TcpClient> tcpClient(new TcpClient(&loop, peer));
+    tcpClient->setConnectionFailCallBack(fail);
+    tcpClient->setOnConnected(::init);
+    tcpClient->setOnMsgCB(::ping);
+    tcpClient->setOnPeerClose(::onPeerClose);
 
 
-    tcpClient.start();
+    tcpClient->start();
     loop.addTimerSinceNow([&loop](){loop.stop();}, 6 * 1000, 0, 0);
     loop.loop();
-    tcpClient.demolish();
+    tcpClient->demolish();
     base::LOG<<"main return";
 }

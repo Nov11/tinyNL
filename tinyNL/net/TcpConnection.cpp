@@ -153,7 +153,14 @@ namespace tinyNL {
                 //next time when socket fd is writable, write remaining data
                 //<del>if break from EPIPE, connection close procedure will be done during pending function processing</del>
             }else{
-                channel_.disableWrite();
+                if(onWriteComplete_){
+                    //avoid stack overflow if onWrite calls send which eagerly calls write again
+                    //for now, it's ok to run writeComplete in next dopendingtask
+                    auto tmp = std::bind(onWriteComplete_, shared_from_this());
+                    loop_->addPendingTask(tmp);
+                }else{
+                    channel_.disableWrite();
+                }
             }
         }
 
@@ -186,9 +193,6 @@ namespace tinyNL {
         }
 
         void TcpConnection::send(const std::string &str) {
-            if(writeBuf.readableSize() > WRITEBUFUPPERLIMIT){
-                closeConnection();
-            }
             auto tmp = std::bind(&TcpConnection::sendInLoop, shared_from_this(), str);
             loop_->runInLoopThread(tmp);
         }
@@ -196,6 +200,9 @@ namespace tinyNL {
         void TcpConnection::sendInLoop(const std::string &str) {
             loop_->assertInLoopThread();
             if(closing_){return;}
+            if(writeBuf.readableSize() > WRITEBUFUPPERLIMIT){
+                closeConnection();
+            }
             writeBuf.append(str.data(), str.size());
             channel_.enableWrite();
             //eager send not sure about its impact
@@ -203,6 +210,7 @@ namespace tinyNL {
         }
 
         std::string TcpConnection::read() {
+            loop_->assertInLoopThread();
             char *ptr = readBuf.readPtr();
             size_t len = readBuf.readableSize();
             std::string ret(ptr, len);
