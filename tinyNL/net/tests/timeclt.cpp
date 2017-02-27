@@ -17,11 +17,17 @@ using namespace tinyNL;
 using namespace tinyNL::net;
 
 void timeclt(const std::shared_ptr<TcpConnection>& con){
-    std::string msg = con->read();
-    uint32_t t = 0;
-    std::memcpy(&t, msg.data(), sizeof(t));
-    std::string sec = std::to_string(t);
-    base::LOG<<sec;
+    if(con->readBuf.readableSize() >= sizeof(uint32_t)){
+        //decode from string, which is 4 bytes
+        std::string msg = con->read();
+        uint32_t t = 0;
+        std::memcpy(&t, msg.data(), sizeof(t));
+        std::string sec = std::to_string(t);
+        base::LOG<<sec;
+    }else{
+        //wait for the remaining parts to arrive
+    }
+
 }
 
 int main(){

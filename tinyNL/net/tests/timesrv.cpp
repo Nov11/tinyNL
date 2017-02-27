@@ -22,6 +22,8 @@ void onConnection(const std::shared_ptr<TcpConnection> &con) {
        << " port:" << ntohs(con->peerAddr().sin_port)
        << std::endl;
     LOG << ss.str();
+
+    //string convoies u32int in binary, which is 4 bytes.
     time_t t = ::time(nullptr);
     uint32_t u32 = static_cast<uint32_t>(t);
     std::string time(reinterpret_cast<char*>(&u32), sizeof(u32));
