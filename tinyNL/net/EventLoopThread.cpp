@@ -9,7 +9,7 @@
 namespace tinyNL {
     namespace net {
 
-        EventLoopThread::EventLoopThread(EventLoopThread::FunctionRunningInThread tf)
+        EventLoopThread::EventLoopThread(const EventLoopThread::FunctionRunningInThread tf)
                 : tf_(tf),
                   thread_(std::bind(&EventLoopThread::eventLoopThread, this)),
                   loop_(nullptr),

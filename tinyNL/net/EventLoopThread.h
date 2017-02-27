@@ -15,7 +15,7 @@ namespace tinyNL{
         class EventLoopThread:Noncopyable {
         public:
             typedef std::function<void(EventLoop*)> FunctionRunningInThread;
-            EventLoopThread(FunctionRunningInThread tf);
+            EventLoopThread(const FunctionRunningInThread tf);
             ~EventLoopThread(){thread_.join();}
             EventLoop* start();
             void join(){ thread_.join(); }

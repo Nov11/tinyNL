@@ -34,3 +34,6 @@ target_link_libraries(ppclt ${lib})
 
 add_executable(ppsrv pingpongsrv.cpp)
 target_link_libraries(ppsrv ${lib})
+
+add_executable(discardsrv discardsrv.cpp)
+target_link_libraries(discardsrv net base)
