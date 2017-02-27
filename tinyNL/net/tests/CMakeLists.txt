@@ -40,3 +40,9 @@ target_link_libraries(discardsrv net base)
 
 add_executable(daytimesrv daytimesrv.cpp)
 target_link_libraries(daytimesrv net base)
+
+add_executable(timesrv timesrv.cpp)
+target_link_libraries(timesrv net base)
+
+add_executable(timeclt timeclt.cpp)
+target_link_libraries(timeclt ${lib})
