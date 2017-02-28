@@ -49,3 +49,6 @@ target_link_libraries(timeclt ${lib})
 
 add_executable(chargen chargen.cpp)
 target_link_libraries(chargen ${lib})
+
+add_executable(hy singlethreadhybridsrv.cpp)
+target_link_libraries(hy ${lib})
