@@ -218,5 +218,20 @@ namespace tinyNL {
             readBuf.erase(len);
             return ret;
         }
+
+        void TcpConnection::closeConnectionOnWriteBuffDrained() {
+            auto tmp = std::bind(&TcpConnection::closeConnectionOnWriteBuffDrainedInLoop, shared_from_this());
+            loop_->runInLoopThread(tmp);
+        }
+
+        void TcpConnection::closeConnectionOnWriteBuffDrainedInLoop() {
+            loop_->assertInLoopThread();
+            if(writeBuf.readableSize() == 0){
+                closeConnection();
+            }else{
+                auto tmp = std::bind(&TcpConnection::closeConnectionOnWriteBuffDrainedInLoop, shared_from_this());
+                loop_->addPendingTask(tmp);
+            }
+        }
     }
 }

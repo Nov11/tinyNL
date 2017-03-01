@@ -37,6 +37,7 @@ namespace tinyNL{
             sockaddr_in peerAddr() const {return peer_;};
             void send(const std::string& str);//if writebuf reach a certain limit, shutdown connection
             std::string read();
+            void closeConnectionOnWriteBuffDrained();
         private:
             EventLoop* loop_;
             Socket socket_;
@@ -53,6 +54,7 @@ namespace tinyNL{
             bool closing_ = false;
             void sendInLoop(const std::string& str);
             void startInLoop();
+            void closeConnectionOnWriteBuffDrainedInLoop();
             const static int WRITEBUFUPPERLIMIT;
         };
     }

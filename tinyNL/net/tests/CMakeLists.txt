@@ -52,3 +52,6 @@ target_link_libraries(chargen ${lib})
 
 add_executable(hy singlethreadhybridsrv.cpp)
 target_link_libraries(hy ${lib})
+
+add_executable(filesrv fileSrv.cpp)
+target_link_libraries(filesrv ${lib})
