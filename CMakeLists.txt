@@ -4,9 +4,7 @@ project(tinyNL)
 set(CMAKE_CXX_STANDARD 11)
 
 set(SOURCE_FILES main.cpp)
-set(CMAKE_CXX_FLAGS
-        "-g -Wall -Wextra -Werror -Wconversion -Wold-style-cast \
-        -Wpointer-arith -Wshadow -Wno-unused-parameter -Wwrite-strings -rdynamic")
+set(CMAKE_CXX_FLAGS "-g -Wall -Wextra -Werror -Wconversion -Wold-style-cast -Wpointer-arith -Wshadow -Wno-unused-parameter -Wwrite-strings -rdynamic")
 
 include_directories(${PROJECT_SOURCE_DIR})
 add_subdirectory(tinyNL/net)
