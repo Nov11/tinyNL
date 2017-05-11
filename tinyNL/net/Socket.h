@@ -12,8 +12,8 @@ namespace tinyNL{
     namespace net{
         class Socket : Noncopyable {
         public :
-            explicit Socket(int fd)
-                    :socket_(fd){
+            explicit Socket(int fd_)
+                    :socket_(fd_){
 
             }
             ~Socket();
