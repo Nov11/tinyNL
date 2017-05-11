@@ -16,7 +16,7 @@ namespace tinyNL {
         public:
             typedef std::function<void()> CallBack;
 
-            Channel(int fd, tinyNL::net::EventLoop *loop);
+            Channel(int fd__, tinyNL::net::EventLoop *loop);
 
             void handleEvent();
 

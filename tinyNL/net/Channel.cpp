@@ -8,8 +8,8 @@
 
 namespace tinyNL {
     namespace net {
-        Channel::Channel(int fd, EventLoop *loop)
-                : fd_(fd),
+        Channel::Channel(int fd__, EventLoop *loop)
+                : fd_(fd__),
                   loop_(loop),
                   events_(0),
                   revents_(0),

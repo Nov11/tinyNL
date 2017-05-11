@@ -15,10 +15,10 @@ namespace tinyNL {
         public:
             typedef std::function<void()> TimerCallBack;
 
-            Timer(const TimerCallBack& tcb, long start, long interval, int repeat)
+            Timer(const TimerCallBack& tcb, long start, long interval__, int repeat)
                     : callBack_(tcb),
                       start_(start),
-                      interval_(interval),
+                      interval_(interval__),
                       repeat_(repeat) {}
 
             long startTime() const { return start_; };
