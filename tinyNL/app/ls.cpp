@@ -44,14 +44,14 @@ int status = 0;
 string incomming;
 HttpRequest req;
 HttpRequest working;
-bool ready = false;
+
 
 void func(string input) {
     size_t crlf = input.find("\r\n");
     if (crlf == string::npos) {
         return;
     }
-    while (!input.empty() && ready != true) {
+    while (!input.empty()) {
         switch (status) {
             case 0: {
                 crlf += 2;
@@ -71,8 +71,7 @@ void func(string input) {
                         req.line.clear();
                         req.body.clear();
                         req.header.clear();
-                        ready = true;
-                        break;
+                        return;
                     }
                     //append headers to req
 
@@ -175,7 +174,21 @@ string composeResponse(string &response) {
     reply.append(response);
     return reply;
 }
-
+char hex(int i){
+    if(i >= 0 && i <= 9){
+        return static_cast<char>('0' + i);
+    }
+    return static_cast<char>(i - 10 + 'a');
+}
+vector<char> convertTo02X(unsigned char c){
+    vector<char> result(2);
+    int i = c;
+    int least = i % 16;
+    result[1] = hex(least);
+    int high = i / 16;
+    result[0] = hex(high);
+    return result;
+}
 void onMsg(const std::shared_ptr<TcpConnection> &con) {
     string req_tmp = con->read();
     incomming.append(req_tmp);
@@ -197,7 +210,6 @@ void onMsg(const std::shared_ptr<TcpConnection> &con) {
     func(rest);
 //    if (!ready) { return; }
 
-    assert(ready);
 
     //parse request command line
     vector<string> cmdLine;
@@ -225,7 +237,8 @@ void onMsg(const std::shared_ptr<TcpConnection> &con) {
     }
 
     //what is the target method?
-    assert(cmdLine[1].find("/rpc/") == 0);
+//    assert( == 0);
+    if(cmdLine[1].find("/rpc/") != 0){return;}
     size_t dot = cmdLine[1].find(".action", 5);
     assert(dot != string::npos);
     string cmd = cmdLine[1].substr(5, dot - 5);
@@ -242,7 +255,7 @@ void onMsg(const std::shared_ptr<TcpConnection> &con) {
     if (hash.find(FIELD_TICK) != hash.end()) {
         tick = hash[FIELD_TICK];
     } else {
-        tick = DEF_SALT;
+        tick = DEF_TICK;
     }
 
     string user = DEF_USER;
@@ -275,15 +288,21 @@ void onMsg(const std::shared_ptr<TcpConnection> &con) {
     vector<unsigned char> msg;
     for (size_t i = 0; i < response.size(); i++) {
         char c = response[i];
-        msg.push_back(static_cast<unsigned char>( c));
+        unsigned char uc = c;
+        assert(uc == c);
+        msg.push_back(uc);
     }
     vector<unsigned char> result;
     rsa_signer(msg, result);
     string signedStr ;
     for(size_t i = 0; i < result.size(); i++){
-        signedStr.push_back(result[i]);
+        vector<char> vc = convertTo02X(result[i]);
+        signedStr.push_back(vc[0]);
+        signedStr.push_back(vc[1]);
     }
-    string finalMsg = composeResponse(signedStr);
+
+    string h = formatTo(PREHEADER, {signedStr, response});
+    string finalMsg = composeResponse(h);
     con->send(finalMsg);
 }
 
@@ -308,9 +327,5 @@ int main() {
     //main thread starts working here
     loop.loop();
 
-
-
-    func(test);
-    cout << "ready:"<<ready<< endl;
     LOG << "main return";
 }

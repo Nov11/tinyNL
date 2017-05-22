@@ -28,9 +28,11 @@
 #define XML_PROLONG "<ProlongTicketResponse><message></message><responseCode>OK</r" \
                     "esponseCode><salt>%s</salt><ticketId>%s</ticketId></Prolong" \
                     "TicketResponse>"
-#define FIELD_SALT  "salt="
-#define FIELD_USER  "userName="
-#define FIELD_TICK  "ticketId="
+#define PREHEADER   "<!-- %s -->\n%s"
+
+#define FIELD_SALT  "salt"
+#define FIELD_USER  "userName"
+#define FIELD_TICK  "ticketId"
 #define GETLEN(x)   (sizeof(x) - 1)
 #define COTYPE_XML  1
 #define COTYPE_HTML 2
