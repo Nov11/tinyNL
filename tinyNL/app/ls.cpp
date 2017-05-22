@@ -145,9 +145,7 @@ static int rsa_signer(vector<unsigned char> &message, vector<unsigned char> &res
     mpi_read_string(&ctx.D, KEY_RADIX, KEY_D);
     ctx.len = KEY_LEN;
 
-    md5(message.data(), message.size() * sizeof(unsigned char), hash);
-//    result.len = ctx.len;
-//    result.data = (uint8_t *) malloc(ctx.len);
+    md5(message.data(), message.size(), hash);
     result.resize(ctx.len);
     ret = rsa_sign(&ctx, hash, result.data());
     if (ret == 0) {
