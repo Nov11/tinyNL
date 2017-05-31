@@ -32,7 +32,7 @@ namespace tinyNL {
             std::vector<char>::size_type upperLimit;
             Pos readIdx;
             Pos writeIdx;
-            bool needShrimp(Pos blankLen){return blankLen > 20;}
+            bool needShrink(Pos blankLen){return blankLen > 20;}
         };
     }
 }

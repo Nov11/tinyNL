@@ -12,7 +12,7 @@ namespace tinyNL{
         void Buffer::append(const char *src, size_t len) {
             Pos blank = readIdx;
             //just this size is arbitrarily chosen
-            if(needShrimp(blank)){
+            if(needShrink(blank)){
                 std::vector<char> nvec;
                 std::copy(&innerbuf_[readIdx], &innerbuf_[writeIdx], std::back_inserter(nvec));
                 std::copy(src, src + len, std::back_inserter(nvec));
@@ -27,7 +27,7 @@ namespace tinyNL{
 
         void Buffer::erase(size_t len) {
             readIdx += len;
-            if(needShrimp(readIdx)){
+            if(needShrink(readIdx)){
                 std::vector<char> nvec;
                 std::copy(&innerbuf_[readIdx], &innerbuf_[writeIdx], std::back_inserter(nvec));
                 swap(innerbuf_, nvec);
