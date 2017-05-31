@@ -313,7 +313,7 @@ int main() {
     EventLoop loop;
     std::shared_ptr<TcpServer> srvptr(new TcpServer(&loop, 60000));
     //set time callback
-    srvptr->setOnConnectionCallBack(::onConnection);
+//    srvptr->setOnConnectionCallBack(::onConnection);
     srvptr->setOnMessageCallBack(::onMsg);
     srvptr->start();
 
