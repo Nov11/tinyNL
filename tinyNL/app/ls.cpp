@@ -21,7 +21,7 @@ using namespace tinyNL::base;
 //string test{"GET /rpc/obtainTicket.action?buildDate=20161122&buildNumber=2016.3.3+Build+CL-163.13906.4&clientVersion=4&hostName=c6s-ThinkPad-T420&machineId=dd6814d9-7869-4654-a607-9e31625e13d8&productCode=cfc7082d-ae43-4978-a2a2-46feb1679405&productFamilyId=cfc7082d-ae43-4978-a2a2-46feb1679405&salt=1495467406783&secure=false&userName=c6s&version=2016300&versionNumber=2016300 HTTP/1.1\r\nAccept-Encoding: gzip\r\nUser-Agent: Java/1.8.0_112-release\r\nHost: localhost:60000\r\nAccept: text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2\r\nConnection: keep-alive\r\n\r\n"};
 Search crnl("\r\n\r\n");
 
-HttpRequest func(string input) {
+HttpRequest extractHttpRequest(string input) {
     HttpRequest result;
     size_t crlf = input.find("\r\n");
     if (crlf == string::npos) {
@@ -60,7 +60,7 @@ HttpRequest func(string input) {
 }
 
 //headers are in format : string=string, without trailing \r\n
-void splitHeaders(vector<string> &headers, map<string, string> &hash) {
+void extractKeyAndValue(vector<string> &headers, map<string, string> &hash) {
     if (headers.empty()) { return; }
     for (auto &item : headers) {
         size_t p = item.find("=");
@@ -72,7 +72,7 @@ void splitHeaders(vector<string> &headers, map<string, string> &hash) {
 }
 
 //by '&'
-void extractParams(string &s, vector<string> &result) {
+void extractParamPairs(string &s, vector<string> &result) {
     size_t j = 0;
     for (size_t i = 0; i < s.size(); i++) {
         if (s[i] == '&') {
@@ -118,25 +118,6 @@ string composeResponse(string &response) {
 }
 
 bool getHttpRequest(const std::shared_ptr<TcpConnection> &con, HttpRequest& result){
-//    string req_tmp = con->read();
-//    incomming.append(req_tmp);
-//    cout << "request: " << incomming <<endl;
-//    //if incomming size exceeds a limit, drop all contents;
-//    if (incomming.size() > 4096) {
-//        incomming.clear();
-//        return;
-//    }
-//    string rest;
-//    size_t requestEnd = incomming.find("\r\n\r\n");
-//    if(requestEnd != string::npos){
-//        rest = incomming.substr(0, requestEnd + 4);
-//
-//        incomming = incomming.substr(requestEnd + 4);
-//    }else{
-//        return;
-//    }
-//
-
     Buffer& readBuf = con->readBuf;
     char* ptr = readBuf.readPtr();
     size_t len = readBuf.readableSize();
@@ -144,46 +125,43 @@ bool getHttpRequest(const std::shared_ptr<TcpConnection> &con, HttpRequest& resu
     if(crnl.match(ptr, len, &pos)) {
         string request(ptr, pos + 4);
         readBuf.erase(pos + 4);
-        result = func(request);
+        result = extractHttpRequest(request);
         return true;
     }
     return false;
 }
 
-void onMsg(const std::shared_ptr<TcpConnection> &con) {
-    HttpRequest working;
-    if(!getHttpRequest(con, working)){ return;}
-
+string generateResponse(HttpRequest& working){
     //parse request command line
     vector<string> cmdLine;
     string &line = working.line;
     size_t p = line.find(" ");
-    if (p == string::npos) { return; }
+    if (p == string::npos) {
+        tinyNL::base::LOG<<"no space found in header command line";
+        return string();
+    }
     cmdLine.push_back(line.substr(0, p));
     size_t tmp = p + 1;
     p = line.find(" ", tmp);
-    if (p == string::npos) { return; }
+    if (p == string::npos) {
+        tinyNL::base::LOG<<"only one space found in header command line";
+        return string();
+    }
     cmdLine.push_back(line.substr(tmp, p - tmp));
     cmdLine.push_back(line.substr(p + 1, line.size() - 2 - p - 1));
 
     //extract all the headers
     //extract headers in header field
     map<string, string> hash;
-//    splitHeaders(working.header, hash);
+
     //extract params in url
     size_t param = cmdLine[1].find("?");
     if (param != string::npos) {
         string params = cmdLine[1].substr(param + 1);
         vector<string> urlParams;
-        extractParams(params, urlParams);
-        splitHeaders(urlParams, hash);
+        extractParamPairs(params, urlParams);
+        extractKeyAndValue(urlParams, hash);
     }
-
-    //what is the target method?
-    if(cmdLine[1].find("/rpc/") != 0){return;}
-    size_t dot = cmdLine[1].find(".action", 5);
-    assert(dot != string::npos);
-    string cmd = cmdLine[1].substr(5, dot - 5);
 
     //set up parameters
     string salt;
@@ -192,8 +170,8 @@ void onMsg(const std::shared_ptr<TcpConnection> &con) {
     } else {
         salt = DEF_SALT;
     }
-    string tick;
 
+    string tick;
     if (hash.find(FIELD_TICK) != hash.end()) {
         tick = hash[FIELD_TICK];
     } else {
@@ -206,8 +184,18 @@ void onMsg(const std::shared_ptr<TcpConnection> &con) {
     }
 
     string prolong = to_string(DEF_PROLONG);
-    //parameters are set
 
+    //what is the target method?
+    if(cmdLine[1].find("/rpc/") != 0){
+        tinyNL::base::LOG<<"no string '/rpc/' found in request path";
+        return string();
+    }
+    size_t dot = cmdLine[1].find(".action", 5);
+    assert(dot != string::npos);
+    string cmd = cmdLine[1].substr(5, dot - 5);
+
+
+    //parameters have been set already
     string response;
     if (cmd == "obtainTicket") {
         response = formatTo(XML_TICKET, {prolong, salt, user});
@@ -220,11 +208,20 @@ void onMsg(const std::shared_ptr<TcpConnection> &con) {
     } else {
         assert(false);
     }
-
-    //sign it
+    return response;
+}
+void onMsg(const std::shared_ptr<TcpConnection> &con) {
+    //try get a full httprequest
+    HttpRequest working;
+    if(!getHttpRequest(con, working)){ return;}
+    //get response body(xml part)
+    string response = generateResponse(working);
+    //get response body(signature part)
     string signedStr = sign(response);
     string formated = formatTo(PREHEADER, {signedStr, response});
+    //produce final response body (with other headers)
     string finalMsg = composeResponse(formated);
+    //send it back to client
     con->send(finalMsg);
 }
 
