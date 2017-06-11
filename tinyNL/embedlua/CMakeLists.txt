@@ -22,10 +22,8 @@ add_custom_command(TARGET t PRE_BUILD
         ${CMAKE_CURRENT_SOURCE_DIR}/scripts/foo.lua ${CMAKE_CURRENT_BINARY_DIR}/scripts/foo.lua )
 
 
-
-add_library(luacommon common.h common.cpp)
-add_executable(srvwithscript srv.cpp )
-target_link_libraries(srvwithscript ${lib} ${LIBS} luacommon)
+add_executable(srvwithscript srv.cpp common.h common.cpp)
+target_link_libraries(srvwithscript ${lib} ${LIBS})
 
 add_custom_command(TARGET srvwithscript PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
