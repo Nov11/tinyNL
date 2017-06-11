@@ -5,7 +5,7 @@
 #ifndef EMBEDLUA_COMMON_H
 #define EMBEDLUA_COMMON_H
 
-#include <lua5.2/lua.h>
+#include <lua5.2/lua.hpp>
 
 //as files in this directory is so simple, I will not wrap this in namespace
 void error (lua_State* L, const char* fmt, ...);
