@@ -24,3 +24,7 @@ But if not, I'd say that major divergence is formed by how to deal with closing.
 And this can be seen in commit logs, too. So git diff is kind of source for answers.  
 So I think maybe I should log some answers to questions like why certain mechanism is needed in the future.
 Issues are welcome.
+
+### Features
+* 'app' directory resides one application for now. It has a runnable docker image.
+* 'embedlua' directory resides integration of lua script which servers as bussiness logic processing. Handler is able to invoke lua script. And 'send' function is callable in lua script. This is a prototype. 
