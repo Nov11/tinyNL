@@ -9,8 +9,14 @@
 
 namespace tinyNL{
     namespace net{
-        void Buffer::append(const char *src, size_t len) {
+        bool Buffer::append(const char *src, size_t len) {
             Pos blank = readIdx;
+            if(len > readIdx){
+                //i.e. upperLimit - readIdx + len > upperLimit
+                //make sure single buffer will not consume too much memory
+                return false;
+            }
+
             //just this size is arbitrarily chosen
             if(needShrink(blank)){
                 std::vector<char> nvec;
@@ -23,6 +29,7 @@ namespace tinyNL{
                 std::copy(src, src + len, std::back_inserter(innerbuf_));
                 writeIdx=innerbuf_.size();
             }
+            return true;
         }
 
         void Buffer::erase(size_t len) {

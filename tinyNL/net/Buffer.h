@@ -22,7 +22,7 @@ namespace tinyNL {
             ~Buffer()= default;
 //            void readFromSocket(Socket &);
 //            void writeToSocket(Socket &);
-            void append(const char* src, size_t len);
+            bool append(const char* src, size_t len);
             void erase(size_t len);
             bool empty()const{return innerbuf_.size() == 0;}
             size_t readableSize() const{return writeIdx - readIdx;}

@@ -89,7 +89,11 @@ namespace tinyNL {
                     }
                 }
             }
-            readBuf.append(buf, input);
+            auto retApp = readBuf.append(buf, input);
+            if(!retApp){
+                base::LOG << "read buf overflow. shutting connection down";
+                closeConnection();
+            }
 //            //2.pass this buf to user callback,run in pending queue;
 //            auto tmp = std::bind(onMsgcb_, shared_from_this());
 //            loop_->runInLoopThread(tmp);
