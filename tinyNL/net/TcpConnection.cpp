@@ -215,14 +215,16 @@ namespace tinyNL {
         }
 
         std::string TcpConnection::read() {
+            return read(readBuf.readableSize());
+        }
+        std::string TcpConnection::read(size_t bytes) {
             loop_->assertInLoopThread();
             char *ptr = readBuf.readPtr();
-            size_t len = readBuf.readableSize();
+            size_t len = std::min(readBuf.readableSize(), bytes);
             std::string ret(ptr, len);
             readBuf.erase(len);
             return ret;
         }
-
         void TcpConnection::closeConnectionOnWriteBuffDrained() {
             auto tmp = std::bind(&TcpConnection::closeConnectionOnWriteBuffDrainedInLoop, shared_from_this());
             loop_->runInLoopThread(tmp);
@@ -237,5 +239,11 @@ namespace tinyNL {
                 loop_->addPendingTask(tmp);
             }
         }
+
+        size_t TcpConnection::readableBytes() const {
+            return readBuf.readableSize();
+        }
+
+
     }
 }

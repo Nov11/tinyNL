@@ -55,3 +55,9 @@ target_link_libraries(hy ${lib})
 
 add_executable(filesrv fileSrv.cpp)
 target_link_libraries(filesrv ${lib})
+
+add_executable(srvheader ServerWithPacketHeader.cpp)
+target_link_libraries(srvheader ${lib})
+
+add_executable(cltheader ClientWithPacketHeader.cpp)
+target_link_libraries(cltheader ${lib})

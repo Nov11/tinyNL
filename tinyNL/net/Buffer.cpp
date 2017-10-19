@@ -11,8 +11,7 @@ namespace tinyNL{
     namespace net{
         bool Buffer::append(const char *src, size_t len) {
             Pos blank = readIdx;
-            if(len > readIdx){
-                //i.e. upperLimit - readIdx + len > upperLimit
+            if(upperLimit - readableSize() < len){
                 //make sure single buffer will not consume too much memory
                 return false;
             }
@@ -41,6 +40,15 @@ namespace tinyNL{
                 readIdx = 0;
                 writeIdx = innerbuf_.size();
             }
+        }
+
+        std::vector<char> Buffer::peek(size_t bytes) {
+            size_t cnt = std::min(readableSize(), bytes);
+            std::vector<char> result;
+            for(size_t i = 0; i < cnt; i++){
+                result.push_back(innerbuf_[readIdx + i]);
+            }
+            return result;
         }
 
     }

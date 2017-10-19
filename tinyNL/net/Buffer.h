@@ -27,6 +27,7 @@ namespace tinyNL {
             bool empty()const{return innerbuf_.size() == 0;}
             size_t readableSize() const{return writeIdx - readIdx;}
             char* readPtr(){return &innerbuf_[readIdx];}
+            std::vector<char> peek(size_t bytes);
         private:
             std::vector<char> innerbuf_;
             std::vector<char>::size_type upperLimit;
