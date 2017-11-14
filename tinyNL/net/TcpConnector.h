@@ -9,6 +9,7 @@
 #include <memory>
 #include <tinyNL/base/Cond.h>
 #include <netinet/in.h>
+#include <functional>
 
 namespace tinyNL {
     namespace net {
