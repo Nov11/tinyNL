@@ -5,9 +5,7 @@
 #include <tinyNL/base/Log.h>
 #include "TcpClient.h"
 #include <tinyNL/net/EventLoop.h>
-#include <tinyNL/net/TcpConnection.h>
-#include <assert.h>
-
+#include <cassert>
 
 namespace tinyNL {
     namespace net {
@@ -53,7 +51,7 @@ namespace tinyNL {
         void TcpClient::demolish() {
             loop_->assertInLoopThread();
             if(!connector_->active()){return;}
-            if(!connector_->conneted()){connector_.reset();return;}//free that obj
+            if(!connector_->connected()){connector_.reset();return;}//free that obj
             if(connection_){
                 connection_->closeConnection();
             }

@@ -25,7 +25,7 @@ namespace tinyNL {
             void setConnectionEstablishedCB(const ConnectionEstablishedCallBack & cb){cecb_= cb;}
             void setConnectFailureCallBack(const ConnectFailureCallBack& cb){cfcb_=cb;}
             bool active() const {return active_;}
-            bool conneted() const {return connected_;};
+            bool connected() const {return connected_;};
         private:
             EventLoop* loop_;
             sockaddr_in peer_;
