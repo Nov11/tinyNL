@@ -28,3 +28,11 @@ Issues are welcome.
 ### Features
 * 'app' directory resides one application for now. It has a runnable docker image.
 * 'embedlua' directory resides integration of lua script which servers as bussiness logic processing. Handler is able to invoke lua script. And 'send' function is callable in lua script. This is a prototype. 
+
+
+### NO codec bundled with this library
+* codec is simply a string processing job other than the real function of network library
+* netty's codec can be a helpful example. [this(a chat service](https://github.com/Nov11/chatter) can be a reference.
+* codec can be built by chaining handlers as a pipeline i.e. read length first and then convert the data
+* protobuf can be a useful tool to do serialization/deserialization
+* **I will not add codec for a long long time.** 
