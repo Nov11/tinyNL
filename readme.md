@@ -32,7 +32,7 @@ Issues are welcome.
 
 ### NO codec bundled with this library
 * codec is simply a string processing job other than the real function of network library
-* netty's codec can be a helpful example. [this(a chat service](https://github.com/Nov11/chatter) can be a reference.
+* netty's codec can be a helpful example. [this(a chat service)](https://github.com/Nov11/chatter) can be a reference.
 * codec can be built by chaining handlers as a pipeline i.e. read length first and then convert the data
 * protobuf can be a useful tool to do serialization/deserialization
 * **I will not add codec for a long long time.** 
